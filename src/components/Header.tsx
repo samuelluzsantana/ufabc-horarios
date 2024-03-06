@@ -1,20 +1,39 @@
+import { useState } from "react";
 import { Button, Divider } from "@nextui-org/react";
 import { SearchNormal as ISearch } from "iconsax-react";
 import { FaStarOfLife as IStarlogo } from "react-icons/fa";
 
 export default function Header() {
+  const [isHover, setIsHover] = useState(false);
+
+  const handleMouseEnter = () => {
+    setIsHover(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHover(false);
+  };
+
   return (
     <>
       <header>
         <div className="header w-full h-[4em] bg-inherit flex items-center justify-between px-4">
-        <IStarlogo
+          <IStarlogo
             size={30}
-            className="star-logo transition-colors duration-300 hover:text-[#00007c]"
+            className={`star-logo transition-colors duration-300 ${
+              isHover ? "text-[#00007c]" : ""
+            }`}
           />
           <Button
-            className="search-dicipline-button hover:bg-[#00007c] hover:text-white"
+            className={`search-dicipline-button hover:bg-[#00007c] hover:text-white`}
             startContent={<ISearch variant="Bold" size={15} />}
             radius="sm"
+            onMouseEnter={() => {
+              setIsHover(true);
+            }}
+            onMouseLeave={() => {
+              setIsHover(false);
+            }}
           >
             Selecionar Disciplinas
           </Button>

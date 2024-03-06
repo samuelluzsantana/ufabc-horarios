@@ -75,3 +75,7 @@
   }
 }
 
+
+.search-dicipline-button:hover .star-logo {
+  color: red;
+}
