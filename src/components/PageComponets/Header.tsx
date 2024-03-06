@@ -1,7 +1,8 @@
 import { ReactNode, useState } from "react";
 import { Divider } from "@nextui-org/react";
 // commons
-import Logo from "./Commons/Logo";
+import Logo from "../Commons/Logo";
+
 
 interface HeaderProps {
   isLogoHover?: boolean;

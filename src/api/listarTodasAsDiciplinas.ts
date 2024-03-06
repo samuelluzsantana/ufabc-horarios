@@ -1,15 +1,18 @@
 import axios from "axios";
 
-const URL_API_MINHAGRADE = 'https://minhagrade-ufabc.up.railway.app/'
+const URL_API_MATRICULA = 'https://matricula.ufabc.edu.br/cache/todasDisciplinas.js';
 
 async function listaTodasDisciplinasAPI() {
-    try {
-        const response = await axios.get(URL_API_MINHAGRADE);
-        console.log(response);
-        return response;
-    } catch (error: any) {
-        throw error
-    }
+  try {
+    const response = await axios.get(URL_API_MATRICULA);
+    const data = response.data;
+
+    console.log("Dados das disciplinas:", data);
+    return data;
+  } catch (error) {
+    console.error("Erro ao obter disciplinas:", error);
+    throw error;
+  }
 }
 
-export { listaTodasDisciplinasAPI }
+export { listaTodasDisciplinasAPI };
