@@ -3,15 +3,17 @@
 import { useState } from "react";
 // components
 import Button from "@/components/Commons/Button";
-import Footer from "@/components/Footer";
+import Footer from "@/components/PageComponets/Footer";
 import Header from "@/components/Header";
 import ModalListaDisicplinas from "@/components/lista-diciplinas/ModalListaDisciplinas";
 // assets
 import { SearchNormal as ISearch } from "iconsax-react";
+// import { PiMagnifyingGlass } from "react-icons/pi";
+
 
 export default function ListaDiciplinas() {
   const [isHover, setIsHover] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
+  const [openModal, setOpenModal] = useState(true);
 
   return (
     <>
