@@ -8,6 +8,7 @@ import {
   Button,
   useDisclosure,
 } from "@nextui-org/react";
+import GridMaterias from "../GridMaterias";
 
 interface ModalListaDisicplinasrprops {
   isOpen: boolean;
@@ -20,36 +21,27 @@ export default function ModalListaDisicplinas({
 }: ModalListaDisicplinasrprops) {
   return (
     <>
-      <Modal isOpen={isOpen} onOpenChange={close} backdrop="opaque" size="4xl">
-        <ModalContent className="w-[120em] ">
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={close}
+        backdrop="opaque"
+        size="5xl"
+        placement="top"
+        className="mx-[1em] sm:top-[3em]"
+      >
+        <ModalContent>
           {(onClose) => (
             <>
               <div className="aling flex flex-col ">
                 <ModalHeader className="flex flex-col gap-1 text-xl">
-                  <p>Ola</p>
+                  <p>Selecione suas disciplinas</p>
                 </ModalHeader>
 
-                <ModalBody></ModalBody>
+                <ModalBody>
+                  <GridMaterias />
+                </ModalBody>
 
-                <ModalFooter>
-                  <div className="w-full flex justify-center gap-4 mt-8">
-                    <Button
-                      color="primary"
-                      variant="flat"
-                      onKeyDown={onClose}
-                      onClick={onClose}
-                    >
-                      Cancelar
-                    </Button>
-
-                    <Button
-                      className=" bg-slate-900 dark:bg-indigo-950 text-gray-100"
-                      variant="solid"
-                    >
-                      Confirma
-                    </Button>
-                  </div>
-                </ModalFooter>
+                <ModalFooter></ModalFooter>
               </div>
             </>
           )}

@@ -4,7 +4,7 @@ import { useState } from "react";
 // components
 import Button from "@/components/Commons/Button";
 import Footer from "@/components/PageComponets/Footer";
-import Header from "@/components/Header";
+import Header from "@/components/PageComponets/Header";
 import ModalListaDisicplinas from "@/components/lista-diciplinas/ModalListaDisciplinas";
 // assets
 import { SearchNormal as ISearch } from "iconsax-react";
