@@ -11,6 +11,7 @@ import { SearchNormal as ISearch } from "iconsax-react";
 
 export default function ListaDiciplinas() {
   const [isHover, setIsHover] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
 
   return (
     <>
@@ -26,6 +27,7 @@ export default function ListaDiciplinas() {
             onMouseLeave={() => {
               setIsHover(false);
             }}
+            onClick={() => setOpenModal(true)}
           >
             Selecionar Disciplinas
           </Button>
@@ -35,10 +37,10 @@ export default function ListaDiciplinas() {
         <Footer />
       </main>
 
-      {/* <ModalListaDisicplinas 
-        isOpen={} 
-        close={ }
-        /> */}
+      <ModalListaDisicplinas 
+        isOpen={openModal} 
+        close={() => setOpenModal(false) }
+        />
     </>
   );
 }
