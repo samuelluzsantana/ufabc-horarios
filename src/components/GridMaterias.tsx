@@ -1,10 +1,13 @@
-import { useRouter } from "next/router";
+import { listaTodasDisciplinasAPI } from "@/api/listarTodasAsDiciplinasAPI";
 
 export default function GridMaterias() {
-  const URL = window.location.origin;
-
   async function listaTodasDisciplinas() {
-    console.log(URL);
+    try {
+      const response = await listaTodasDisciplinasAPI();
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
