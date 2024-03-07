@@ -2,8 +2,7 @@
 
 import puppeteer from "puppeteer";
 
-const URL_API_MATRICULA =
-  "https://matricula.ufabc.edu.br/cache/todasDisciplinas.js";
+const URL_API_MATRICULA = "https://matricula.ufabc.edu.br/cache/todasDisciplinas.js";
 
 async function listaTodasDisciplinasAPI() {
   try {
