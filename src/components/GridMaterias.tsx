@@ -2,14 +2,18 @@ import { useEffect, useState } from "react";
 import { listaTodasDisciplinasAPI } from "@/api/listarTodasAsDiciplinasAPI";
 
 export default function GridMaterias() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [courseName, setCourseName] = useState<string>("");
 
   async function listaTodasDisciplinas() {
     setIsLoading(true);
 
     try {
       const response = await listaTodasDisciplinasAPI();
-      console.log(response);
+      if (response && response.length > 0) {
+        const firstCourseName = response[0].nome;
+        setCourseName(firstCourseName);
+      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -18,9 +22,17 @@ export default function GridMaterias() {
   }
 
   useEffect(() => {
-   
     listaTodasDisciplinas();
-  }, []); 
+  }, []);
 
-  return <>{!isLoading && <p>grid</p>}</>;
+  return (
+    <>
+      {!isLoading && (
+        <div className="">
+          <p>nome do curso: </p>
+          <p className="font-semibold">{courseName}</p>
+        </div>
+      )}
+    </>
+  );
 }

@@ -25,9 +25,7 @@ async function listaTodasDisciplinasAPI() {
 
       return null;
     });
-
     if (data !== null) {
-      console.log(data);
       await browser.close();
       return JSON.parse(data);
     } else {
