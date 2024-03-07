@@ -19,7 +19,7 @@ export default function ListaDiciplinas() {
   return (
     <>
       <main className="flex min-h-screen flex-col">
-        <Header isLogoHover={isHover}>
+        <Header isLogoHover={isHover || openModal}>
           <Button
             className={`search-dicipline-button text-white bg-[#18181b] dark:bg-[#27272a] hover:bg-[#00007c] dark:hover:bg-[#00007c]`}
             startContent={<ISearch variant="Bold" size={15} />}
