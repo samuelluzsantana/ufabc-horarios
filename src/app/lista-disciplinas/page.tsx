@@ -8,13 +8,14 @@ import Header from "@/components/PageComponets/Header";
 import ModalListaDisicplinas from "@/components/lista-diciplinas/ModalListaDisciplinas";
 // assets
 import { SearchNormal as ISearch } from "iconsax-react";
+import { useRouter } from "next/router";
 // import { PiMagnifyingGlass } from "react-icons/pi";
-
 
 export default function ListaDiciplinas() {
   const [isHover, setIsHover] = useState(false);
   const [openModal, setOpenModal] = useState(true);
 
+  
   return (
     <>
       <main className="flex min-h-screen flex-col">
@@ -39,10 +40,10 @@ export default function ListaDiciplinas() {
         <Footer />
       </main>
 
-      <ModalListaDisicplinas 
-        isOpen={openModal} 
-        close={() => setOpenModal(false) }
-        />
+      <ModalListaDisicplinas
+        isOpen={openModal}
+        close={() => setOpenModal(false)}
+      />
     </>
   );
 }

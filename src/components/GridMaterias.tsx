@@ -1,11 +1,7 @@
-import { useRouter } from 'next/router';
-
+import { useRouter } from "next/router";
 
 export default function GridMaterias() {
-  const router = useRouter();
-  
-  const URL = router.asPath;
-
+  const URL = window.location.origin;
 
   async function listaTodasDisciplinas() {
     console.log(URL);
