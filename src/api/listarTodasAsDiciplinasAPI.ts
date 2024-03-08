@@ -6,7 +6,7 @@ const URL_API_MATRICULA = "https://matricula.ufabc.edu.br/cache/todasDisciplinas
 
 async function listaTodasDisciplinasAPI() {
   try {
-    const browser = await puppeteer.launch({});
+    const browser = await puppeteer.launch({headless:false});
     const page = await browser.newPage();
     await page.goto(URL_API_MATRICULA);
 
