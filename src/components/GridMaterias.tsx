@@ -3,10 +3,19 @@
 import { useEffect, useState } from "react";
 import { listaTodasDisciplinasAPI } from "@/api/listarTodasAsDiciplinasAPI";
 import axios from "axios";
+import { Button, Chip } from "@nextui-org/react";
+
+interface Course {
+  nome: string;
+  campus: number;
+  codigo: string;
+  horarios: { horas: string[]; semana: number }[];
+  vagas: number;
+}
 
 export default function GridMaterias() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [courseName, setCourseName] = useState<string>("");
+  const [courses, setCourses] = useState<Course[]>([]);
 
   async function listaTodasDisciplinas() {
     setIsLoading(true);
@@ -14,8 +23,14 @@ export default function GridMaterias() {
     try {
       const response = await listaTodasDisciplinasAPI();
       if (response && response.length > 0) {
-        const firstCourseName = response[2].nome;
-        setCourseName(firstCourseName);
+        const formattedCourses = response.slice(0, 5).map(course => ({
+          nome: course.nome,
+          campus: course.campus,
+          codigo: course.codigo,
+          horarios: course.horarios,
+          vagas: course.vagas
+        }));
+        setCourses(formattedCourses);
       }
     } catch (error) {
       console.log(error);
@@ -24,18 +39,57 @@ export default function GridMaterias() {
     }
   }
 
+  useEffect(() => {
+    listaTodasDisciplinas();
+  }, []);
+
+  const getCampusName = (campusCode: number): string => {
+    return campusCode === 1 ? "Santo André" : "São Bernardo";
+  };
+
+  const getDayName = (dayCode: number): string => {
+    switch (dayCode) {
+      case 1:
+        return "Segunda-feira";
+      case 2:
+        return "Terça-feira";
+      case 3:
+        return "Quarta-feira";
+      case 4:
+        return "Quinta-feira";
+      case 5:
+        return "Sexta-feira";
+      default:
+        return "";
+    }
+  };
 
   return (
     <>
-      <button onClick={() => listaTodasDisciplinas()}>Oi</button>
+      <Button onClick={() => listaTodasDisciplinas()}>Listar Disciplinas</Button>
       {!isLoading && (
         <div className="">
-          <p>nome do curso: </p>
-          <p className="font-semibold">{courseName}</p>
+          <p>Disciplinas:</p>
+          <ul>
+            {courses.map((course, index) => (
+              <li key={index}>
+                <p className="font-semibold">{course.nome}</p>
+                <p>Campus: {getCampusName(course.campus)}</p>
+                <p>Código: {course.codigo}</p>
+                <p>Horários:</p>
+                <ul>
+                  {course.horarios.map((horario, idx) => (
+                    <li key={idx}>
+                      {getDayName(horario.semana)}: {horario.horas.join(', ')}
+                    </li>
+                  ))}
+                </ul>
+                <p>Vagas: {course.vagas}</p>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </>
   );
 }
-
-// const response = await axios.get("https://api.scraperapi.com/?api_key=9113c0af6e1ccc28de58ff2b12c99d02&url=https%3A%2F%2Fmatricula.ufabc.edu.br%2Fcache%2FtodasDisciplinas.js"

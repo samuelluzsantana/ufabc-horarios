@@ -7,5 +7,5 @@ export default function Home() {
 
   useEffect(() => {
     router.push('/lista-disciplinas');
-  }, []);
+  }, [router]);
 }
