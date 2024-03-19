@@ -5,8 +5,15 @@ import puppeteer from "puppeteer";
 const URL_API_MATRICULA = "https://matricula.ufabc.edu.br/cache/todasDisciplinas.js";
 
 async function listaTodasDisciplinasAPI() {
+
+
+  console.log('alo');
+  
+  
+
+
   try {
-    const browser = await puppeteer.launch({headless:true});
+    const browser = await puppeteer.launch({});
     const page = await browser.newPage();
     await page.goto(URL_API_MATRICULA);
 
