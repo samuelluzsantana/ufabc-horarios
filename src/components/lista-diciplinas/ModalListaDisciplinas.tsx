@@ -27,7 +27,8 @@ export default function ModalListaDisicplinas({
         backdrop="opaque"
         size="5xl"
         placement="top"
-        className="mx-[1em] sm:top-[3em]"
+        className="mx-[1em]"
+        scrollBehavior="inside"
       >
         <ModalContent>
           {(onClose) => (
