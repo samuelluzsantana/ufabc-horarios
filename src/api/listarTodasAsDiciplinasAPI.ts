@@ -1,42 +1,24 @@
 "use server";
 
-import puppeteer from "puppeteer";
+import axios from "axios";
 
-const URL_API_MATRICULA = "https://matricula.ufabc.edu.br/cache/todasDisciplinas.js";
+const URL_API_MATRICULA =
+  "https://matricula.ufabc.edu.br/cache/todasDisciplinas.js";
 
 async function listaTodasDisciplinasAPI() {
-
-
-  console.log('alo');
-  
-  
-
-
   try {
-    const browser = await puppeteer.launch({});
-    const page = await browser.newPage();
-    await page.goto(URL_API_MATRICULA);
-
-    const data = await page.evaluate(() => {
-      const preElement = document.querySelector("pre");
-
-      if (preElement && preElement.textContent !== null) {
-        const preContent = preElement.textContent.trim();
-        const conteudoMatch = preContent.match(/todasDisciplinas=(\[.*\]);/);
-
-        if (conteudoMatch && conteudoMatch[1]) {
-          return conteudoMatch[1];
-        }
-      }
-
-      return null;
+    const { data } = await axios.get(URL_API_MATRICULA, {
+      headers: {
+        Accept: `text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9`,
+        Host: `matricula.ufabc.edu.br`,
+        "User-Agent": `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36`,
+      },
     });
-    if (data !== null) {
-      await browser.close();
-      return JSON.parse(data);
-    } else {
-      throw new Error("Failed to extract data from the page.");
-    }
+
+    const conteudoMatch = data.match(/todasDisciplinas=(\[.*\]);/);
+    const formatedData = conteudoMatch[1];
+
+    return JSON.parse(formatedData);
   } catch (error) {
     throw error;
   }
