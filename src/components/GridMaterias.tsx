@@ -23,7 +23,7 @@ export default function GridMaterias() {
     setIsLoading(true);
 
     try {
-      const response = await listaTodasDisciplinasAPI(page);
+      const response = await listaTodasDisciplinasAPI();
       if (response && response.length > 0) {
         const formattedCourses = response.map((course: Course) => ({
           nome: course.nome,
