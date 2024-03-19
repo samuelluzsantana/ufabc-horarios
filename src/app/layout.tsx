@@ -17,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="pt-br" suppressHydrationWarning>
       <head>
+        <link rel="manifest" href="/manifest.json" />
         <link rel="icon" href="/branco-logo.svg" sizes="any" />
       </head>
       <body className={spaceGrotesk.className}>
