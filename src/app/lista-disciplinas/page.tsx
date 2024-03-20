@@ -5,7 +5,7 @@ import { useState } from "react";
 import Button from "@/components/Commons/Button";
 import Footer from "@/components/PageComponets/Footer";
 import Header from "@/components/PageComponets/Header";
-import ModalListaDisicplinas from "@/components/lista-diciplinas/ModalListaDisciplinas";
+import ModalListaDisicplinas from "@/app/lista-disciplinas/components/ModalListaDisciplinas";
 // assets
 import { SearchNormal as ISearch } from "iconsax-react";
 import { useRouter } from "next/router";
@@ -13,7 +13,7 @@ import { useRouter } from "next/router";
 
 export default function ListaDiciplinas() {
   const [isHover, setIsHover] = useState(false);
-  const [openModal, setOpenModal] = useState(true);
+  const [openModal, setOpenModal] = useState(false);
 
   
   return (
