@@ -29,7 +29,7 @@ interface Course {
 
 export default function GridMaterias() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [courses, setCourses] = useState<Course[]>([]);
+  const [courses, setCourses] = useState<Discipline[]>([]);
 
   async function listaTodasDisciplinas() {
     setIsLoading(true);
@@ -38,8 +38,9 @@ export default function GridMaterias() {
       const response = await listaTodasDisciplinasAPI();
 
       if (response && response.length > 0) {
-        const formattedCourses = response.map((course: Course) => ({
+        const formattedCourses = response.map((course: Discipline) => ({
           nome: course.nome,
+          sigla: course.sigla,
           nome_campus: course.nome_campus, // Include nome_campus directly
           codigo: course.codigo,
           horarios: course.horarios,
@@ -70,9 +71,11 @@ export default function GridMaterias() {
           aria-label="Lista de Disciplinas"
           className="table-disciplinas"
         >
-          <TableHeader className="mt-12 px-5">
+          <TableHeader className="px-5">
+            <TableColumn key="sigla">Sigla</TableColumn>
             <TableColumn key="nome">Nome</TableColumn>
             <TableColumn key="turma">Turma</TableColumn>
+            <TableColumn key="periodo">Periodo</TableColumn>
             <TableColumn key="nome_campus">Campus</TableColumn>
             <TableColumn key="codigo">Código</TableColumn>
             <TableColumn key="horarios">Horários</TableColumn>
@@ -81,8 +84,10 @@ export default function GridMaterias() {
           <TableBody emptyContent={"Disciplinas ainda não carregadas."}>
             {courses.map((course, index) => (
               <TableRow key={index}>
+                <TableCell>{course.sigla}</TableCell>
                 <TableCell>{course.nome}</TableCell>
                 <TableCell>{course.turma}</TableCell>
+                <TableCell>{course.periodo}</TableCell>
                 <TableCell>{course.nome_campus}</TableCell>
                 <TableCell>{course.codigo}</TableCell>
                 <TableCell>

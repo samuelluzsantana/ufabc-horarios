@@ -25,23 +25,24 @@ async function listaTodasDisciplinasAPI(): Promise<Discipline[]> {
       const matches = discipline.nome.match(regex);
       if (matches) {
         const [, courseName, classIdentifier, period] = matches;
+        const sigla = courseName.split(' ').map(word => word.charAt(0).toUpperCase()).join('');
         return {
           nome: courseName.trim(),
+          sigla: sigla.trim(), // Adicionando o campo sigla
           turma: classIdentifier.trim(),
           periodo: period.trim(),
           nome_campus: discipline.nome_campus,
           codigo: discipline.codigo,
           horarios: discipline.horarios,
-          vagas: discipline.vagas
+          vagas: discipline.vagas,
         };
-      } else {
-        return null; // or handle appropriately if the regex doesn't match
+      }  else {
+        return null; 
       }
     });
 
-    // Filter out any null entries (where regex didn't match)
     const filteredDisciplines = formattedDisciplines.filter(discipline => discipline !== null) as Discipline[];
-
+    
     return filteredDisciplines;
   } catch (error) {
     throw error;
