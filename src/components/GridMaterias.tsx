@@ -42,7 +42,7 @@ export default function GridMaterias() {
 
   const selectedKeys = new Set(selectedColumns);
 
-  const handleSelectionChange = (selectedKeys) => {
+  const handleSelectionChange = (selectedKeys: any) => {
     setSelectedColumns(selectedKeys);
   };
 
