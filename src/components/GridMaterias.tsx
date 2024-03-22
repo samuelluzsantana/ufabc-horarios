@@ -25,7 +25,9 @@ export default function GridMaterias() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [courses, setCourses] = useState<Discipline[]>([]);
 
-  const [visibleColumns, setVisibleColumns] = useState([
+  const isSmallScreen = window.innerWidth < 450;
+
+  const visibleColumns = [
     { id: "sigla", value: "Sigla" },
     { id: "nome", value: "Nome" },
     { id: "turma", value: "Turma" },
@@ -34,10 +36,12 @@ export default function GridMaterias() {
     { id: "codigo", value: "Código" },
     { id: "horarios", value: "Horários" },
     { id: "vagas", value: "Vagas" },
-  ]);
+  ];
 
   const [selectedColumns, setSelectedColumns] = useState(
-    visibleColumns.map((column) => column.id)
+    isSmallScreen
+      ? ["nome", "turma", "periodo"]
+      : visibleColumns.map((column) => column.id)
   );
 
   const selectedKeys = new Set(selectedColumns);
@@ -66,8 +70,7 @@ export default function GridMaterias() {
             vagas: course.vagas,
             periodo: course.periodo,
             turma: course.turma,
-          }))
-          .slice(100, 120);
+          }));
         setCourses((prevCourses) => [...prevCourses, ...formattedCourses]);
       }
     } catch (error) {
@@ -76,6 +79,19 @@ export default function GridMaterias() {
       setIsLoading(false);
     }
   }
+
+  useEffect(() => {
+    const handleResize = () => {
+      setSelectedColumns(
+        isSmallScreen
+          ? ["nome", "turma", "periodo"]
+          : visibleColumns.map((column) => column.id)
+      );
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isSmallScreen, visibleColumns]);
 
   useEffect(() => {
     listaTodasDisciplinas();
