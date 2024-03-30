@@ -113,12 +113,16 @@ const calcularHorarioDisciplina = (
 
 /** Array de cores para as disciplinas */
 const cores = [
-  "#780000",
-  "#c1121f",
-  "#ffb521",
-  "#003049",
-  "#669bbc",
-  "#00007c",
+  "#F44336", //Red
+  "#9C27B0", //Purple
+  "#009688", //Teal
+  "#8BC34A", //Light Green
+  "#607D8B", //Blue Grey
+  "#FF5722", //Deep Orange
+  "#4CAF50", //Green
+  "#03A9F4", //Light Blue
+  "#E91E63", //Pink
+  "#795548", //Brown
 ];
 
 /**
