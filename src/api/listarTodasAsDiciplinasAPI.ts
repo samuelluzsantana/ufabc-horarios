@@ -17,9 +17,7 @@ async function listaTodasDisciplinasAPI(): Promise<Discipline[]> {
     }
 
     const data = await response.text();
-
     const conteudoMatch = data.match(/todasDisciplinas=(\[.*\]);/);
-    console.log(conteudoMatch);
 
     if (conteudoMatch === null) { throw new Error('Failed to match data');}
     const formatedData = conteudoMatch[1] ;
