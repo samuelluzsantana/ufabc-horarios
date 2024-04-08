@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { listaTodasDisciplinasAPI } from "@/api/listarTodasAsDiciplinasAPI";
 import {
   Button,
+  Chip,
   Dropdown,
   DropdownItem,
   DropdownMenu,
@@ -23,7 +24,9 @@ import { getDayName } from "@/services/dayformats";
 export default function GridMaterias() {
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [courses, setCourses] = useState<Discipline[]>([]);
+  const [disciplines, setDisciplines] = useState<Discipline[]>([]);
+  const disciplinesFromLocalStorage =  localStorage.getItem('disciplines')
+
   const revalidateTime = 1300;
 
   const isSmallScreen = window.innerWidth < 450;
@@ -57,10 +60,17 @@ export default function GridMaterias() {
   }
 
   async function listaTodasDisciplinas() {
+    if (disciplinesFromLocalStorage) {
+      setDisciplines(JSON.parse(disciplinesFromLocalStorage));
+      setIsLoading(false);
+      return
+    }
+    
     setIsLoading(true);
+    
     try {
       const response = await listaTodasDisciplinasAPI();
-      const formattedCourses = response
+      const formattedDisciplines = response
         .map((course: Discipline) => ({
           nome: course.nome,
           sigla: course.sigla,
@@ -71,7 +81,7 @@ export default function GridMaterias() {
           periodo: course.periodo,
           turma: course.turma,
         }));
-      setCourses((prevCourses) => [...prevCourses, ...formattedCourses]);
+      setDisciplines((prevCourses) => [...prevCourses, ...formattedDisciplines]);
     } catch (error) {
       console.log(error);
     } finally {
@@ -98,6 +108,10 @@ export default function GridMaterias() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const stringDisciplines =JSON.stringify(disciplines);
+    localStorage.setItem("disciplines", stringDisciplines);
+  }, [disciplines]);
 
   return (
     <>
@@ -165,12 +179,7 @@ export default function GridMaterias() {
                 <TableColumn hidden={verifySelecteds("codigo")} key="codigo">
                   Código
                 </TableColumn>
-                <TableColumn
-                  hidden={verifySelecteds("horarios")}
-                  key="horarios"
-                >
-                  Horários
-                </TableColumn>
+
                 <TableColumn hidden={verifySelecteds("vagas")} key="vagas">
                   Vagas
                 </TableColumn>
@@ -180,7 +189,7 @@ export default function GridMaterias() {
                 isLoading={isLoading}
                 loadingContent={<Spinner label="Loading..." />}
               >
-                {courses.map((course, index) => (
+                {disciplines.map((course, index) => (
                   <TableRow key={index}>
                     <TableCell hidden={verifySelecteds("sigla")}>
                       {course.sigla}
@@ -191,24 +200,18 @@ export default function GridMaterias() {
                     <TableCell hidden={verifySelecteds("turma")}>
                       {course.turma}
                     </TableCell>
+
                     <TableCell hidden={verifySelecteds("periodo")}>
                       {course.periodo}
                     </TableCell>
+
                     <TableCell hidden={verifySelecteds("nome_campus")}>
                       {course.nome_campus}
                     </TableCell>
                     <TableCell hidden={verifySelecteds("codigo")}>
                       {course.codigo}
                     </TableCell>
-                    <TableCell hidden={verifySelecteds("horarios")}>
-                      <ul>
-                        {course.horarios.map((horario, idx) => (
-                          <li key={idx}>
-                            {getDayName(horario.semana)}: {horario.horas.join(", ")}
-                          </li>
-                        ))}
-                      </ul>
-                    </TableCell>
+
                     <TableCell hidden={verifySelecteds("vagas")}>
                       {course.vagas}
                     </TableCell>
