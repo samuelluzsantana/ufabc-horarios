@@ -39,7 +39,6 @@ export default function GridMaterias() {
     { id: "periodo", value: "Periodo" },
     { id: "nome_campus", value: "Campus" },
     { id: "codigo", value: "Código" },
-    { id: "horarios", value: "Horários" },
     { id: "vagas", value: "Vagas" },
   ];
 
@@ -138,7 +137,7 @@ export default function GridMaterias() {
                   <Dropdown>
                     <DropdownTrigger>
                       <Button size="sm" variant="flat">
-                        Columns
+                        Colunas
                       </Button>
                     </DropdownTrigger>
                     <DropdownMenu
