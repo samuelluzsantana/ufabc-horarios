@@ -8,7 +8,7 @@ const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Listagem de disciplinas",  
-  description: "Monte a sua grade com a aplicação - Developed by @sxmuell",
+  description: "Monte a sua grade do seu quadrimestre com essa aplicação - desenvolvido por @sxwuell",
 };
 
 export default function RootLayout({

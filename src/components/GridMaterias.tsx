@@ -44,7 +44,7 @@ export default function GridMaterias() {
 
   const [selectedColumns, setSelectedColumns] = useState(
     isSmallScreen
-      ? ["nome", "turma", "periodo"]
+      ? ["nome", "periodo"]
       : visibleColumns.map((column) => column.id)
   );
 
@@ -123,7 +123,6 @@ export default function GridMaterias() {
               indicator: "bg-[#00007c]",
             }}
           />
-
           :
           <ScrollShadow visibility={"bottom"} className="h-[30em]">
             <Table
