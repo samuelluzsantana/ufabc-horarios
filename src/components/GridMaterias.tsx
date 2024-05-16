@@ -48,10 +48,19 @@ export default function GridMaterias() {
       : visibleColumns.map((column) => column.id)
   );
 
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+
   const selectedKeys = new Set(selectedColumns);
 
   const handleSelectionChange = (selectedKeys: any) => {
     setSelectedColumns(selectedKeys);
+  };
+
+  const handleRowSelectionChange = (selectedRows: any) => {
+    setSelectedRows(selectedRows);
+
+    console.log(selectedRows);
+    
   };
 
   function verifySelecteds(valor: string): boolean {
@@ -127,10 +136,14 @@ export default function GridMaterias() {
           <ScrollShadow visibility={"bottom"} className="h-[30em]">
             <Table
               isStriped
+              color="default"
               isHeaderSticky
               removeWrapper
+              selectionMode="multiple"
               aria-label="Lista de Disciplinas"
               className="table-disciplinas"
+              selectedKeys={selectedRows}
+              onSelectionChange={handleRowSelectionChange}
               topContent={
                 <>
                   <Dropdown>
