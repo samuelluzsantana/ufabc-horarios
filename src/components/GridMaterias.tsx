@@ -1,37 +1,22 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useEffect, useState } from "react";
 import { listaTodasDisciplinasAPI } from "@/api/listarTodasAsDiciplinasAPI";
-import {
-  Button,
-  Chip,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
-  Progress,
-  ScrollShadow,
-  Spinner,
-  Table,
-  TableBody,
-  TableCell,
-  TableColumn,
-  TableHeader,
-  TableRow,
-} from "@nextui-org/react";
+import { Progress } from "@nextui-org/react"
 import { getDayName } from "@/services/dayformats";
 
 export default function GridMaterias() {
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [disciplines, setDisciplines] = useState<Discipline[]>([]);
-  const disciplinesFromLocalStorage =  localStorage.getItem('disciplines')
+
+  const disciplinesFromLocalStorage = localStorage.getItem('disciplines')
 
   const revalidateTime = 1300;
 
   const isSmallScreen = window.innerWidth < 450;
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const visibleColumns = [
     { id: "sigla", value: "Sigla" },
     { id: "nome", value: "Nome" },
@@ -48,24 +33,6 @@ export default function GridMaterias() {
       : visibleColumns.map((column) => column.id)
   );
 
-  const [selectedRows, setSelectedRows] = useState<string[]>([]);
-
-  const selectedKeys = new Set(selectedColumns);
-
-  const handleSelectionChange = (selectedKeys: any) => {
-    setSelectedColumns(selectedKeys);
-  };
-
-  const handleRowSelectionChange = (selectedRows: any) => {
-    setSelectedRows(selectedRows);
-
-    console.log(selectedRows);
-    
-  };
-
-  function verifySelecteds(valor: string): boolean {
-    return !selectedKeys.has(valor);
-  }
 
   async function listaTodasDisciplinas() {
     if (disciplinesFromLocalStorage) {
@@ -73,9 +40,9 @@ export default function GridMaterias() {
       setIsLoading(false);
       return
     }
-    
+
     setIsLoading(true);
-    
+
     try {
       const response = await listaTodasDisciplinasAPI();
       const formattedDisciplines = response
@@ -117,7 +84,7 @@ export default function GridMaterias() {
   }, []);
 
   useEffect(() => {
-    const stringDisciplines =JSON.stringify(disciplines);
+    const stringDisciplines = JSON.stringify(disciplines);
     localStorage.setItem("disciplines", stringDisciplines);
   }, [disciplines]);
 
@@ -126,6 +93,7 @@ export default function GridMaterias() {
       {
         isLoading ?
           <Progress
+            aria-label="Loading progress"
             size="sm"
             isIndeterminate
             classNames={{
@@ -133,104 +101,9 @@ export default function GridMaterias() {
             }}
           />
           :
-          <ScrollShadow visibility={"bottom"} className="h-[30em]">
-            <Table
-              isStriped
-              color="default"
-              isHeaderSticky
-              removeWrapper
-              selectionMode="multiple"
-              aria-label="Lista de Disciplinas"
-              className="table-disciplinas"
-              selectedKeys={selectedRows}
-              onSelectionChange={handleRowSelectionChange}
-              topContent={
-                <>
-                  <Dropdown>
-                    <DropdownTrigger>
-                      <Button size="sm" variant="flat">
-                        Colunas
-                      </Button>
-                    </DropdownTrigger>
-                    <DropdownMenu
-                      disallowEmptySelection
-                      aria-label="Table Columns"
-                      closeOnSelect={false}
-                      selectedKeys={selectedColumns}
-                      selectionMode="multiple"
-                      onSelectionChange={handleSelectionChange}
-                    >
-                      {visibleColumns.map((column) => (
-                        <DropdownItem key={column.id}>{column.value}</DropdownItem>
-                      ))}
-                    </DropdownMenu>
-                  </Dropdown>
-                </>
-              }
-            >
-              <TableHeader className="px-5">
-                <TableColumn hidden={verifySelecteds("sigla")} key="sigla">
-                  Sigla
-                </TableColumn>
-                <TableColumn hidden={verifySelecteds("nome")} key="nome">
-                  Nome
-                </TableColumn>
-                <TableColumn hidden={verifySelecteds("turma")} key="turma">
-                  Turma
-                </TableColumn>
-                <TableColumn hidden={verifySelecteds("periodo")} key="periodo">
-                  Periodo
-                </TableColumn>
-                <TableColumn
-                  hidden={verifySelecteds("nome_campus")}
-                  key="nome_campus"
-                >
-                  Campus
-                </TableColumn>
-                <TableColumn hidden={verifySelecteds("codigo")} key="codigo">
-                  Código
-                </TableColumn>
-
-                <TableColumn hidden={verifySelecteds("vagas")} key="vagas">
-                  Vagas
-                </TableColumn>
-              </TableHeader>
-              <TableBody
-                emptyContent={!isLoading ? "Disciplinas não carregadas." : ''}
-                isLoading={isLoading}
-                loadingContent={<Spinner label="Loading..." />}
-              >
-                {disciplines.map((course, index) => (
-                  <TableRow key={index}>
-                    <TableCell hidden={verifySelecteds("sigla")}>
-                      {course.sigla}
-                    </TableCell>
-                    <TableCell hidden={verifySelecteds("nome")}>
-                      {course.nome}
-                    </TableCell>
-                    <TableCell hidden={verifySelecteds("turma")}>
-                      {course.turma}
-                    </TableCell>
-
-                    <TableCell hidden={verifySelecteds("periodo")}>
-                      {course.periodo}
-                    </TableCell>
-
-                    <TableCell hidden={verifySelecteds("nome_campus")}>
-                      {course.nome_campus}
-                    </TableCell>
-                    <TableCell hidden={verifySelecteds("codigo")}>
-                      {course.codigo}
-                    </TableCell>
-
-                    <TableCell hidden={verifySelecteds("vagas")}>
-                      {course.vagas}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </ScrollShadow>
+          <>
+            <p>Tabela</p>
+          </>
       }
 
     </>

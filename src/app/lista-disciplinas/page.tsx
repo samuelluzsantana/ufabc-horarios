@@ -5,7 +5,7 @@ import { useState } from "react";
 import Button from "@/components/Commons/Button";
 import Footer from "@/components/PageComponets/Footer";
 import Header from "@/components/PageComponets/Header";
-import ModalListaDisicplinas from "@/app/lista-disciplinas/components/ModalListaDisciplinas";
+import ModalListaDisicplinas from "@/components/ModalListaDisciplinas";
 // assets
 import { SearchNormal as ISearch } from "iconsax-react";
 import { useRouter } from "next/router";
@@ -13,7 +13,7 @@ import { useRouter } from "next/router";
 
 export default function ListaDiciplinas() {
   const [isHover, setIsHover] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
+  const [openModal, setOpenModal] = useState(true);
 
   
   return (
@@ -24,6 +24,7 @@ export default function ListaDiciplinas() {
             className={`search-dicipline-button text-white bg-[#18181b] dark:bg-[#27272a] hover:bg-[#00007c] dark:hover:bg-[#00007c]`}
             startContent={<ISearch variant="Bold" size={15} />}
             radius="sm"
+            aria-label="Select Disciplines"
             onMouseEnter={() => {
               setIsHover(true);
             }}

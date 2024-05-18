@@ -8,7 +8,7 @@ import {
   Button,
   useDisclosure,
 } from "@nextui-org/react";
-import GridMaterias from "../../../components/GridMaterias";
+import GridMaterias from "./GridMaterias";
 
 interface ModalListaDisicplinasrprops {
   isOpen: boolean;
