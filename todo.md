@@ -1,9 +1,18 @@
 # A fazer
 
-[] Grid com as disciplinas
-[] Filtros disciplinas
+[] Filtros
 
-__
-[] colocar cores padrão dos botões dark e blue
-[] tawild variables
+    - Pesquisar por Nome
+    - Campus
+    - Periodos
+    - +/- vagas
+
+[] Selecionas e deselecionar turmas (URL tbm)
+[] Salvar no localStorage
+[] Ocultar turmas em conflito
+[] Mostrar Creditos
+--
 [] changelog - pagina com as atualizações de cada versão e futuras melhorias
+
+🏁 done.
+[x] Grid com as disciplinas
