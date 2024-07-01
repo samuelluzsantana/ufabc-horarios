@@ -105,8 +105,6 @@ export default function GridMaterias() {
     localStorage.setItem("disciplines", stringDisciplines);
   }, [disciplines]);
 
-  console.log(disciplines);
-
   return (
     <>
       {isLoading ? (
