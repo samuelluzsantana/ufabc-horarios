@@ -71,20 +71,9 @@ export default function GridMaterias() {
 
     try {
       const response = await listaTodasDisciplinasAPI();
-      const formattedDisciplines = response.map((course: Discipline) => ({
-        nome: course.nome,
-        sigla: course.sigla,
-        nome_campus: course.nome_campus,
-        codigo: course.codigo,
-        horarios: course.horarios,
-        vagas: course.vagas,
-        periodo: course.periodo,
-        turma: course.turma,
-      }));
-      setDisciplines((prevCourses) => [
-        ...prevCourses,
-        ...formattedDisciplines,
-      ]);
+
+      // Atualizar diretamente o estado com os dados já formatados
+      setDisciplines(response);
     } catch (error) {
       console.log(error);
     } finally {
@@ -115,6 +104,8 @@ export default function GridMaterias() {
     const stringDisciplines = JSON.stringify(disciplines);
     localStorage.setItem("disciplines", stringDisciplines);
   }, [disciplines]);
+
+  console.log(disciplines);
 
   return (
     <>
@@ -180,7 +171,7 @@ export default function GridMaterias() {
                       } hover:bg-gray-200 dark:hover:bg-gray-600`}
                       onClick={() =>
                         handleRowSelectionChange(
-                          new Set([...selectedRows, index])
+                          new Set([...selectedRows, course.id])
                         )
                       }
                     >

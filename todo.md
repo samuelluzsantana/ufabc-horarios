@@ -11,8 +11,10 @@
 [] Salvar no localStorage
 [] Ocultar turmas em conflito
 [] Mostrar Creditos
+
 --
 [] changelog - pagina com as atualizações de cada versão e futuras melhorias
+[] Obrigatoria de cada curso.
 
 🏁 done.
 [x] Grid com as disciplinas
