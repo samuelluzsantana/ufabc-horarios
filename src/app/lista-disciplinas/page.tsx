@@ -13,9 +13,8 @@ import { useRouter } from "next/router";
 
 export default function ListaDiciplinas() {
   const [isHover, setIsHover] = useState(false);
-  const [openModal, setOpenModal] = useState(true);
+  const [openModal, setOpenModal] = useState(false);
 
-  
   return (
     <>
       <main className="flex min-h-screen flex-col">

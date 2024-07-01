@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -9,7 +10,6 @@ import {
   DropdownMenu,
   DropdownTrigger,
   Progress,
-  Spinner,
   ScrollShadow,
 } from "@nextui-org/react";
 
@@ -34,11 +34,11 @@ export default function GridMaterias() {
 
   const [selectedColumns, setSelectedColumns] = useState(
     isSmallScreen
-      ? ["nome", "periodo"]
-      : visibleColumns.map((column) => column.id)
+      ? ["nome", "turma", "periodo"]
+      : ["sigla", "nome", "turma", "periodo", "nome_campus"]
   );
 
-  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [selectedRows, setSelectedRows] = useState<number[]>([]);
 
   const selectedKeys = new Set(selectedColumns);
 
@@ -46,9 +46,14 @@ export default function GridMaterias() {
     setSelectedColumns(selectedKeys);
   };
 
-  const handleRowSelectionChange = (selectedRows: any) => {
-    setSelectedRows(selectedRows);
-    console.log(selectedRows);
+  const handleRowSelectionChange = (selectedRows: Set<number>) => {
+    // Atualiza o estado com a lista de índices das disciplinas selecionadas
+    const selectedIndexes = Array.from(selectedRows);
+    setSelectedRows(selectedIndexes);
+
+    // Atualiza a URL com os índices das disciplinas selecionadas, separados por `/`, mantendo a URL base
+    const urlFragment = selectedIndexes.join(",");
+    window.history.pushState({}, "", `/lista-disciplinas/#${urlFragment}`);
   };
 
   function verifySelecteds(valor: string): boolean {
@@ -69,7 +74,7 @@ export default function GridMaterias() {
       const formattedDisciplines = response.map((course: Discipline) => ({
         nome: course.nome,
         sigla: course.sigla,
-        nome_campus: course.nome_campus, // Include nome_campus directly
+        nome_campus: course.nome_campus,
         codigo: course.codigo,
         horarios: course.horarios,
         vagas: course.vagas,
@@ -92,7 +97,7 @@ export default function GridMaterias() {
       setSelectedColumns(
         isSmallScreen
           ? ["nome", "turma", "periodo"]
-          : visibleColumns.map((column) => column.id)
+          : ["sigla", "nome", "turma", "periodo", "nome_campus"]
       );
     };
 
@@ -122,11 +127,15 @@ export default function GridMaterias() {
           }}
         />
       ) : (
-        <ScrollShadow visibility={"bottom"} className="h-[30em]">
+        <ScrollShadow visibility={"bottom"}>
           <div className="overflow-x-auto">
             <Dropdown>
               <DropdownTrigger>
-                <Button size="sm" variant="flat">
+                <Button
+                  size="sm"
+                  variant="solid"
+                  aria-label="Selecione colunas para exibir"
+                >
                   Colunas
                 </Button>
               </DropdownTrigger>
@@ -143,114 +152,51 @@ export default function GridMaterias() {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="">
-                <tr>
-                  <th
-                    className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 ${
-                      verifySelecteds("sigla") ? "hidden" : ""
-                    }`}
-                  >
-                    Sigla
-                  </th>
-                  <th
-                    className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 ${
-                      verifySelecteds("nome") ? "hidden" : ""
-                    }`}
-                  >
-                    Nome
-                  </th>
-                  <th
-                    className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 ${
-                      verifySelecteds("turma") ? "hidden" : ""
-                    }`}
-                  >
-                    Turma
-                  </th>
-                  <th
-                    className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 ${
-                      verifySelecteds("periodo") ? "hidden" : ""
-                    }`}
-                  >
-                    Periodo
-                  </th>
-                  <th
-                    className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 ${
-                      verifySelecteds("nome_campus") ? "hidden" : ""
-                    }`}
-                  >
-                    Campus
-                  </th>
-                  <th
-                    className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 ${
-                      verifySelecteds("codigo") ? "hidden" : ""
-                    }`}
-                  >
-                    Código
-                  </th>
-                  <th
-                    className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 ${
-                      verifySelecteds("vagas") ? "hidden" : ""
-                    }`}
-                  >
-                    Vagas
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-                {disciplines.map((course, index) => (
-                  <tr
-                    key={index}
-                    className={`cursor-pointer ${
-                      selectedRows.includes(course.sigla)
-                        ? "bg-gray-100 dark:bg-gray-700"
-                        : ""
-                    }`}
-                    onClick={() => handleRowSelectionChange([course.sigla])}
-                  >
-                    <td
-                      className={`${verifySelecteds("sigla") ? "hidden" : ""}`}
-                    >
-                      {course.sigla}
-                    </td>
-                    <td
-                      className={`${verifySelecteds("nome") ? "hidden" : ""}`}
-                    >
-                      {course.nome}
-                    </td>
-                    <td
-                      className={`${verifySelecteds("turma") ? "hidden" : ""}`}
-                    >
-                      {course.turma}
-                    </td>
-                    <td
-                      className={`${
-                        verifySelecteds("periodo") ? "hidden" : ""
-                      }`}
-                    >
-                      {course.periodo}
-                    </td>
-                    <td
-                      className={`${
-                        verifySelecteds("nome_campus") ? "hidden" : ""
-                      }`}
-                    >
-                      {course.nome_campus}
-                    </td>
-                    <td
-                      className={`${verifySelecteds("codigo") ? "hidden" : ""}`}
-                    >
-                      {course.codigo}
-                    </td>
-                    <td
-                      className={`${verifySelecteds("vagas") ? "hidden" : ""}`}
-                    >
-                      {course.vagas}
-                    </td>
+            <div className="relative overflow-y-auto h-[30em]">
+              <table className="min-w-full divide-y divide-foreground-200">
+                <thead className="bg-foreground-100  sticky top-2 z-10 shadow-lg">
+                  <tr>
+                    {visibleColumns.map(
+                      (column) =>
+                        !verifySelecteds(column.id) && (
+                          <th
+                            key={column.id}
+                            className={`px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 `}
+                          >
+                            {column.value}
+                          </th>
+                        )
+                    )}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y text-center text-small font-normal divide-foreground-200">
+                  {disciplines.map((course, index) => (
+                    <tr
+                      key={index}
+                      className={`h-[5.5em] bg-opacity-50 transition-all ${
+                        index % 2 === 0
+                          ? "bg-foreground-50"
+                          : "bg-foreground-100"
+                      } hover:bg-gray-200 dark:hover:bg-gray-600`}
+                      onClick={() =>
+                        handleRowSelectionChange(
+                          new Set([...selectedRows, index])
+                        )
+                      }
+                    >
+                      {visibleColumns.map(
+                        (column) =>
+                          !verifySelecteds(column.id) && (
+                            <td key={column.id}>
+                              {(course as any)[column.id]}
+                            </td>
+                          )
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </ScrollShadow>
       )}
