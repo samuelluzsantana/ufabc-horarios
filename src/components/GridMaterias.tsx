@@ -9,13 +9,42 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
+  Input,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   Progress,
   ScrollShadow,
 } from "@nextui-org/react";
 
+import { IoFilterOutline, IoSearchOutline } from "react-icons/io5";
+
+interface Discipline {
+  id: number;
+  nome: string;
+  turma: string;
+  sigla: string;
+  creditos: string;
+  periodo: string;
+  nome_campus: string;
+  codigo: string;
+  horarios: { horas: string[]; semana: number }[];
+  vagas: number;
+  obrigatoriedades: { obrigatoriedade: string; curso_id: number }[];
+}
+
 export default function GridMaterias() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [disciplines, setDisciplines] = useState<Discipline[]>([]);
+  const [selectedCampus, setSelectedCampus] = useState<string[]>([
+    "Santo André",
+    "São Bernardo do Campo",
+  ]);
+  const [selectedPeriod, setSelectedPeriod] = useState<string[]>([
+    "Diurno",
+    "Noturno",
+  ]);
+
   const disciplinesFromLocalStorage = localStorage.getItem("disciplines");
 
   const revalidateTime = 1300;
@@ -62,13 +91,25 @@ export default function GridMaterias() {
   };
 
   const handleRowSelectionChange = (selectedRows: Set<number>) => {
-    // Atualiza o estado com a lista de índices das disciplinas selecionadas
     const selectedIndexes = Array.from(selectedRows);
     setSelectedRows(selectedIndexes);
 
-    // Atualiza a URL com os índices das disciplinas selecionadas, separados por `/`, mantendo a URL base
     const urlFragment = selectedIndexes.join(",");
-    window.history.pushState({}, "", `/lista-disciplinas/#${urlFragment}`);
+    sessionStorage.setItem("selectedDisciplines", JSON.stringify(urlFragment));
+  };
+
+  const handleCampusSelectionChange = (keys: "all" | Set<React.Key>) => {
+    const newSelectedCampus = Array.from(keys);
+    if (newSelectedCampus.length > 0) {
+      setSelectedCampus(newSelectedCampus as string[]);
+    }
+  };
+
+  const handlePeriodSelectionChange = (keys: "all" | Set<React.Key>) => {
+    const newSelectedPeriod = Array.from(keys);
+    if (newSelectedPeriod.length > 0) {
+      setSelectedPeriod(newSelectedPeriod as string[]);
+    }
   };
 
   function verifySelecteds(valor: string): boolean {
@@ -86,8 +127,6 @@ export default function GridMaterias() {
 
     try {
       const response = await listaTodasDisciplinasAPI();
-
-      // Atualizar diretamente o estado com os dados já formatados
       setDisciplines(response);
     } catch (error) {
       console.log(error);
@@ -114,7 +153,7 @@ export default function GridMaterias() {
 
   useEffect(() => {
     listaTodasDisciplinas();
-    const interval = setInterval(listaTodasDisciplinas, revalidateTime * 1000); // Revalidate every hour
+    const interval = setInterval(listaTodasDisciplinas, revalidateTime * 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -122,6 +161,72 @@ export default function GridMaterias() {
     const stringDisciplines = JSON.stringify(disciplines);
     localStorage.setItem("disciplines", stringDisciplines);
   }, [disciplines]);
+
+  const filteredDisciplines = disciplines.filter(
+    (discipline) =>
+      selectedCampus.includes(discipline.nome_campus) &&
+      selectedPeriod.includes(discipline.periodo)
+  );
+
+  const FiltrarPeriodo = () => {
+    return (
+      <>
+        <Dropdown>
+          <DropdownTrigger>
+            <Button
+              size="sm"
+              variant="light"
+              aria-label="Selecione o período"
+              className="w-full text-md"
+            >
+              Período
+            </Button>
+          </DropdownTrigger>
+          <DropdownMenu
+            closeOnSelect={false}
+            disallowEmptySelection
+            selectedKeys={new Set(selectedPeriod)}
+            selectionMode="multiple"
+            onSelectionChange={handlePeriodSelectionChange}
+          >
+            <DropdownItem key="Diurno">Diurno</DropdownItem>
+            <DropdownItem key="Noturno">Noturno</DropdownItem>
+          </DropdownMenu>
+        </Dropdown>
+      </>
+    );
+  };
+
+  const FiltrarCampus = () => {
+    return (
+      <>
+        <Dropdown>
+          <DropdownTrigger>
+            <Button
+              size="sm"
+              variant="light"
+              aria-label="Selecione o campus"
+              className="w-full text-md"
+            >
+              Campus
+            </Button>
+          </DropdownTrigger>
+          <DropdownMenu
+            disallowEmptySelection
+            selectedKeys={new Set(selectedCampus)}
+            selectionMode="multiple"
+            onSelectionChange={handleCampusSelectionChange}
+            closeOnSelect={false}
+          >
+            <DropdownItem key="Santo André">Santo André</DropdownItem>
+            <DropdownItem key="São Bernardo do Campo">
+              São Bernardo do Campo
+            </DropdownItem>
+          </DropdownMenu>
+        </Dropdown>
+      </>
+    );
+  };
 
   return (
     <>
@@ -136,29 +241,60 @@ export default function GridMaterias() {
       ) : (
         <ScrollShadow visibility={"bottom"}>
           <div className="overflow-x-auto">
-            <Dropdown>
-              <DropdownTrigger>
-                <Button
-                  size="sm"
-                  variant="solid"
-                  aria-label="Selecione colunas para exibir"
-                >
-                  Colunas
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Table Columns"
-                closeOnSelect={false}
-                selectedKeys={selectedColumns}
-                selectionMode="multiple"
-                onSelectionChange={handleSelectionChange}
-              >
-                {visibleColumns.map((column) => (
-                  <DropdownItem key={column.id}>{column.value}</DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
+            <div className="persquisar-texto mb-8">
+              <div className="flex justify-between items-center">
+                <Input
+                  variant="bordered"
+                  placeholder="Digite"
+                  className="bg-foreground-200 rounded-medium border-default-200 focus:border-[#00007c] mr-4"
+                  startContent={
+                    <>
+                      <IoSearchOutline size={20} />
+                    </>
+                  }
+                />
+
+                <Popover placement="bottom-end">
+                  <PopoverTrigger>
+                    <Button
+                      size="sm"
+                      variant="solid"
+                      aria-label="Selecione os Filtros"
+                      className="h-[4.5em] w-[4.5em] rounded-medium bg-[#00007c] text-white"
+                      isIconOnly
+                    >
+                      <IoFilterOutline size={24} />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <div className="flex flex-col space-y-4 p-4">
+                      <FiltrarCampus />
+                      <FiltrarPeriodo />
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+
+            <div className="filtros w-full space-x-2 flex justify-end mb-8">
+              <Dropdown>
+                <DropdownTrigger>
+                  <Button
+                    size="sm"
+                    variant="solid"
+                    aria-label="Selecione colunas para exibir"
+                  >
+                    Colunas
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu closeOnSelect={false}>
+                  {visibleColumns.map((column) => (
+                    <DropdownItem key={column.id}>{column.value}</DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </Dropdown>
+            </div>
+
             <div className="relative overflow-y-auto h-[30em]">
               <table className="min-w-full divide-y divide-foreground-200">
                 <thead className="bg-foreground-100  sticky top-2 z-10 shadow-lg">
@@ -177,7 +313,7 @@ export default function GridMaterias() {
                   </tr>
                 </thead>
                 <tbody className="divide-y text-center text-small font-normal divide-foreground-200">
-                  {disciplines.map((course, index) => (
+                  {filteredDisciplines.map((course, index) => (
                     <tr
                       key={index}
                       className={`h-[5.5em] bg-opacity-50 transition-all ${
