@@ -15,6 +15,7 @@ import {
   PopoverTrigger,
   Progress,
   ScrollShadow,
+  Selection,
 } from "@nextui-org/react";
 
 import { IoFilterOutline, IoSearchOutline } from "react-icons/io5";
@@ -82,12 +83,12 @@ export default function GridMaterias() {
 
   const selectedKeys = new Set(selectedColumns);
 
-  const handleSelectionChange = (selectedKeys: any) => {
-    setSelectedColumns(selectedKeys);
-    sessionStorage.setItem(
-      "selectedColumns",
-      JSON.stringify(Array.from(selectedKeys))
-    );
+  const handleSelectionChange = (keys: Selection) => {
+    // Convert each Key to a string
+    const updatedColumns = Array.from(keys).map((key) => key.toString());
+
+    setSelectedColumns(updatedColumns); // Now safe to update state
+    sessionStorage.setItem("selectedColumns", JSON.stringify(updatedColumns));
   };
 
   const handleRowSelectionChange = (selectedRows: Set<number>) => {
@@ -241,12 +242,12 @@ export default function GridMaterias() {
       ) : (
         <ScrollShadow visibility={"bottom"}>
           <div className="overflow-x-auto">
-            <div className="persquisar-texto mb-8">
+            <div className="pesquisar-texto mb-8">
               <div className="flex justify-between items-center">
                 <Input
                   variant="bordered"
                   placeholder="Digite"
-                  className="bg-foreground-200 rounded-medium border-default-200 focus:border-[#00007c] mr-4"
+                  className="bg-foreground-200 rounded-medium border-default-200 focus:border-[#00007c]"
                   startContent={
                     <>
                       <IoSearchOutline size={20} />
@@ -260,7 +261,7 @@ export default function GridMaterias() {
                       size="sm"
                       variant="solid"
                       aria-label="Selecione os Filtros"
-                      className="h-[4.5em] w-[4.5em] rounded-medium bg-[#00007c] text-white"
+                      className="ml-4 w-[5.5em] h-[4.5em] md:w-[4.5em] rounded-medium bg-[#00007c] text-white"
                       isIconOnly
                     >
                       <IoFilterOutline size={24} />
@@ -287,7 +288,13 @@ export default function GridMaterias() {
                     Colunas
                   </Button>
                 </DropdownTrigger>
-                <DropdownMenu closeOnSelect={false}>
+                <DropdownMenu
+                  closeOnSelect={false}
+                  selectedKeys={new Set(selectedColumns)}
+                  selectionMode="multiple"
+                  onSelectionChange={handleSelectionChange}
+                  disallowEmptySelection
+                >
                   {visibleColumns.map((column) => (
                     <DropdownItem key={column.id}>{column.value}</DropdownItem>
                   ))}
@@ -297,7 +304,7 @@ export default function GridMaterias() {
 
             <div className="relative overflow-y-auto h-[30em]">
               <table className="min-w-full divide-y divide-foreground-200">
-                <thead className="bg-foreground-100  sticky top-2 z-10 shadow-lg">
+                <thead className="bg-foreground-100 sticky top-2 z-10 shadow-lg">
                   <tr>
                     {visibleColumns.map(
                       (column) =>
