@@ -38,6 +38,7 @@ async function listaTodasDisciplinasAPI(): Promise<Discipline[]> {
           .split(" ")
           .map((word: string) => word.charAt(0).toUpperCase())
           .join("");
+
         return {
           id: discipline.id, // Adicionando o campo id
           nome: courseName.trim(),
@@ -45,7 +46,7 @@ async function listaTodasDisciplinasAPI(): Promise<Discipline[]> {
           turma: classIdentifier.trim(),
           periodo: period.trim(),
           creditos: discipline.creditos,
-          nome_campus: discipline.nome_campus,
+          nome_campus: discipline.nome_campus.replace("Campus ", "").trim(),
           codigo: discipline.codigo,
           horarios: discipline.horarios.map(
             (horario: { horas: any; semana: any }) => ({

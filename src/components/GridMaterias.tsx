@@ -32,11 +32,22 @@ export default function GridMaterias() {
     { id: "vagas", value: "Vagas" },
   ];
 
-  const [selectedColumns, setSelectedColumns] = useState(
-    isSmallScreen
-      ? ["nome", "turma", "periodo"]
-      : ["sigla", "nome", "turma", "periodo", "nome_campus"]
-  );
+  const defaultColumnsMobile = ["nome", "periodo"];
+  const defaultColumnsWeb = [
+    "sigla",
+    "nome",
+    "turma",
+    "periodo",
+    "nome_campus",
+  ];
+
+  const [selectedColumns, setSelectedColumns] = useState<string[]>(() => {
+    const savedColumns = sessionStorage.getItem("selectedColumns");
+    if (savedColumns) {
+      return JSON.parse(savedColumns);
+    }
+    return isSmallScreen ? defaultColumnsMobile : defaultColumnsWeb;
+  });
 
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
 
@@ -44,6 +55,10 @@ export default function GridMaterias() {
 
   const handleSelectionChange = (selectedKeys: any) => {
     setSelectedColumns(selectedKeys);
+    sessionStorage.setItem(
+      "selectedColumns",
+      JSON.stringify(Array.from(selectedKeys))
+    );
   };
 
   const handleRowSelectionChange = (selectedRows: Set<number>) => {
@@ -83,10 +98,13 @@ export default function GridMaterias() {
 
   useEffect(() => {
     const handleResize = () => {
-      setSelectedColumns(
-        isSmallScreen
-          ? ["nome", "turma", "periodo"]
-          : ["sigla", "nome", "turma", "periodo", "nome_campus"]
+      const newSelectedColumns = isSmallScreen
+        ? defaultColumnsMobile
+        : defaultColumnsWeb;
+      setSelectedColumns(newSelectedColumns);
+      sessionStorage.setItem(
+        "selectedColumns",
+        JSON.stringify(newSelectedColumns)
       );
     };
 
