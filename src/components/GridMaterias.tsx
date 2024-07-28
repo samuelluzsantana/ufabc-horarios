@@ -118,7 +118,10 @@ export default function GridMaterias() {
   }
 
   async function listaTodasDisciplinas() {
-    if (disciplinesFromLocalStorage) {
+    if (
+      disciplinesFromLocalStorage &&
+      disciplinesFromLocalStorage?.length < 2
+    ) {
       setDisciplines(JSON.parse(disciplinesFromLocalStorage));
       setIsLoading(false);
       return;
@@ -153,9 +156,9 @@ export default function GridMaterias() {
   }, [isSmallScreen, visibleColumns]);
 
   useEffect(() => {
-    listaTodasDisciplinas();
-    const interval = setInterval(listaTodasDisciplinas, revalidateTime * 1000);
-    return () => clearInterval(interval);
+    if (filteredDisciplines.length === 0) {
+      listaTodasDisciplinas();
+    }
   }, []);
 
   useEffect(() => {
