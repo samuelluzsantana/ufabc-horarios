@@ -281,11 +281,11 @@ export default function GridMaterias() {
                 <Input
                   variant="bordered"
                   placeholder="Digite"
-                  size="lg"
+                
                   className="bg-foreground-200 rounded-medium border-default-200 focus:border-[#00007c]"
                   startContent={
                     <>
-                      <IoSearchOutline size={15} />
+                      <IoSearchOutline size={20} />
                     </>
                   }
                 />
@@ -299,7 +299,7 @@ export default function GridMaterias() {
                       className="ml-4 w-[5.5em] h-[4.5em] md:w-[4.5em] rounded-medium bg-[#00007c] text-white"
                       isIconOnly
                     >
-                      <IoFilterOutline size={20} />
+                      <IoFilterOutline size={12} />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent>
