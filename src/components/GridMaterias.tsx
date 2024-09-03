@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { listaTodasDisciplinasAPI } from "@/api/listarTodasAsDiciplinasAPI";
 import {
   Button,
+  Checkbox,
   Dropdown,
   DropdownItem,
   DropdownMenu,
@@ -37,11 +38,9 @@ interface Discipline {
 export default function GridMaterias() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const disciplinesFromLocalStorage = localStorage.getItem("disciplines")!;
-  const [disciplines, setDisciplines] = useState<Discipline[]>(JSON.parse(disciplinesFromLocalStorage));
-  
-  
-  
-
+  const [disciplines, setDisciplines] = useState<Discipline[]>(
+    JSON.parse(disciplinesFromLocalStorage)
+  );
 
   const [selectedCampus, setSelectedCampus] = useState<string[]>([
     "Santo André",
@@ -51,8 +50,6 @@ export default function GridMaterias() {
     "Diurno",
     "Noturno",
   ]);
-
-
 
   const isSmallScreen = window.innerWidth < 450;
 
@@ -125,7 +122,7 @@ export default function GridMaterias() {
     setIsLoading(true);
     try {
       const response = await listaTodasDisciplinasAPI();
-      setDisciplines(response);   
+      setDisciplines(response);
       localStorage.setItem("disciplines", JSON.stringify(response));
     } catch (error) {
       console.log(error);
@@ -150,25 +147,87 @@ export default function GridMaterias() {
     return () => window.removeEventListener("resize", handleResize);
   }, [isSmallScreen, visibleColumns]);
 
-
-  
-
-
   useEffect(() => {
     if (!disciplinesFromLocalStorage) {
       listaTodasDisciplinas();
     }
 
-
-    setDisciplines(JSON.parse(disciplinesFromLocalStorage) )
+    setDisciplines(JSON.parse(disciplinesFromLocalStorage));
   }, []);
 
-  const filteredDisciplines =  disciplines?.filter(
-    (discipline: { nome_campus: string; periodo: string; }) =>
+  const filteredDisciplines: Discipline[] = disciplines?.filter(
+    (discipline: { nome_campus: string; periodo: string }) =>
       selectedCampus.includes(discipline.nome_campus) &&
       selectedPeriod.includes(discipline.periodo)
   );
-  
+
+  // http://localhost:9101/lista-disciplinas/?disciplinas=89052,89336
+
+  const [disciplinasSelecionadas, setDisciplinasSelecionadas] = useState<
+    number[]
+  >([]);
+
+  function atualizarUrlComDisciplinas(disciplinas: number[]) {
+    const url = new URL(window.location.href);
+
+    // Garante que a URL termine com uma barra
+    if (!url.pathname.endsWith("/")) {
+      url.pathname += "/";
+    }
+
+    url.searchParams.set("disciplinas", disciplinas.join(","));
+
+    const newUrl = url.toString().replace(/%2C/g, ",");
+
+    window.history.pushState({}, "", newUrl);
+  }
+
+  // Função para salvar disciplinas e atualizar a URL
+  function salvarDisciplinas(disciplina: number) {
+    setDisciplinasSelecionadas((prevState) => {
+      // Verifica se a disciplina está presente em filteredDisciplines
+      const disciplinaPresente = filteredDisciplines.some(
+        (d) => d.id === disciplina
+      );
+
+      let updatedState: number[];
+      if (prevState.includes(disciplina)) {
+        // Se a disciplina já está na lista, remova-a apenas se ainda estiver em filteredDisciplines
+        if (disciplinaPresente) {
+          updatedState = prevState.filter((id) => id !== disciplina);
+        } else {
+          updatedState = prevState;
+        }
+      } else {
+        // Se a disciplina não está na lista, adicione-a apenas se estiver em filteredDisciplines
+        if (disciplinaPresente) {
+          updatedState = [...prevState, disciplina];
+        } else {
+          updatedState = prevState;
+        }
+      }
+
+      // Atualiza a URL com o parâmetro de consulta 'disciplinas'
+      atualizarUrlComDisciplinas(updatedState);
+
+      return updatedState;
+    });
+  }
+
+  // useEffect para configurar disciplinasSelecionadas a partir da URL
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const disciplinasParam = url.searchParams.get("disciplinas");
+
+    if (disciplinasParam) {
+      // Substitui ponto e vírgula por vírgula, se necessário
+      const disciplinas = disciplinasParam
+        .replace(/;/g, ",")
+        .split(",")
+        .map((id) => parseInt(id, 10));
+      setDisciplinasSelecionadas(disciplinas);
+    }
+  }, []);
 
   const FiltrarPeriodo = () => {
     return (
@@ -230,38 +289,37 @@ export default function GridMaterias() {
     );
   };
 
-
   const Colunas = () => {
-    return(
-
+    return (
       <>
-      <Dropdown>
-                <DropdownTrigger>
-                  <Button
-                    size="sm"
-                    variant="light"
-                    className="w-full text-md"
-                    aria-label="Selecione colunas para exibir"
-                  >
-                    Colunas
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu
-                  closeOnSelect={false}
-                  selectedKeys={new Set(selectedColumns)}
-                  selectionMode="multiple"
-                  onSelectionChange={handleSelectionChange}
-                  disallowEmptySelection
-                >
-                  {visibleColumns.map((column) => (
-                    <DropdownItem key={column.id}>{column.value}</DropdownItem>
-                  ))}
-                </DropdownMenu>
-              </Dropdown>
-      
+        <Dropdown>
+          <DropdownTrigger>
+            <Button
+              size="sm"
+              variant="light"
+              className="w-full text-md"
+              aria-label="Selecione colunas para exibir"
+            >
+              Colunas
+            </Button>
+          </DropdownTrigger>
+          <DropdownMenu
+            closeOnSelect={false}
+            selectedKeys={new Set(selectedColumns)}
+            selectionMode="multiple"
+            onSelectionChange={handleSelectionChange}
+            disallowEmptySelection
+          >
+            <>
+              {visibleColumns.map((column) => (
+                <DropdownItem key={column.id}>{column.value}</DropdownItem>
+              ))}
+            </>
+          </DropdownMenu>
+        </Dropdown>
       </>
-    )
-  }
+    );
+  };
 
   return (
     <>
@@ -281,7 +339,6 @@ export default function GridMaterias() {
                 <Input
                   variant="bordered"
                   placeholder="Digite"
-                
                   className="bg-foreground-200 rounded-medium border-default-200 focus:border-[#00007c]"
                   startContent={
                     <>
@@ -299,25 +356,25 @@ export default function GridMaterias() {
                       className="ml-4 w-[5.5em] h-[4.5em] md:w-[4.5em] rounded-medium bg-[#00007c] text-white"
                       isIconOnly
                     >
-                      <IoFilterOutline size={12} />
+                      <IoFilterOutline size={18.5} />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent>
                     <div className="flex flex-col space-y-4 p-2">
                       <FiltrarCampus />
                       <FiltrarPeriodo />
-                      <Colunas/>
+                      <Colunas />
                     </div>
                   </PopoverContent>
                 </Popover>
               </div>
             </div>
 
-
             <div className="relative overflow-y-auto h-[35em]">
               <table className="min-w-full divide-y divide-foreground-200">
-                <thead >
+                <thead>
                   <tr className="bg-foreground-100 sticky top-1 z-10 shadow-lg">
+                    <th></th>
                     {visibleColumns.map(
                       (column) =>
                         !verifySelecteds(column.id) && (
@@ -336,20 +393,29 @@ export default function GridMaterias() {
                     <tr
                       key={index}
                       className={`h-[5.5em] bg-opacity-50 transition-all ${
-                        index % 2 === 0
-                          ? "bg-foreground-50"
-                          : "bg-foreground-100"
-                      } hover:bg-gray-200 dark:hover:bg-gray-600`}
-                      onClick={() =>
-                        handleRowSelectionChange(
-                          new Set([...selectedRows, course.id])
-                        )
-                      }
+                        disciplinasSelecionadas.includes(course.id)
+                          ? "bg-default-300"
+                          : index % 2 === 0
+                            ? "bg-foreground-50"
+                            : "bg-foreground-100"
+                      } hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer`}
                     >
+                      <td className="h-full w-[2em]">
+                        <Checkbox
+                          isSelected={disciplinasSelecionadas.includes(
+                            course.id
+                          )}
+                          className="ml-2"
+                          onChange={() => salvarDisciplinas(course.id)}
+                        />
+                      </td>
                       {visibleColumns.map(
                         (column) =>
                           !verifySelecteds(column.id) && (
-                            <td key={column.id}>
+                            <td
+                              key={column.id}
+                              onClick={() => salvarDisciplinas(course.id)}
+                            >
                               {(course as any)[column.id]}
                             </td>
                           )
