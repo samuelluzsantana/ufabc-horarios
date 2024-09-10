@@ -155,10 +155,33 @@ export default function GridMaterias() {
     setDisciplines(JSON.parse(disciplinesFromLocalStorage));
   }, []);
 
-  const filteredDisciplines: Discipline[] = disciplines?.filter(
-    (discipline: { nome_campus: string; periodo: string }) =>
-      selectedCampus.includes(discipline.nome_campus) &&
-      selectedPeriod.includes(discipline.periodo)
+  const [searchInput, setSearchInput] = useState("");
+
+  const searchFilteredDisciplines = (
+    disciplines: Discipline[],
+    searchTerm: string
+  ) => {
+    if (!searchTerm.trim()) return disciplines;
+
+    const searchTerms = searchTerm.toLowerCase().split(/\s+/);
+
+    return disciplines.filter((discipline) => {
+      const disciplineString = JSON.stringify(discipline).toLowerCase();
+
+      return searchTerms.every((term) => {
+        // Verifica se o termo de busca está contido em qualquer parte da string da disciplina
+        return disciplineString.includes(term);
+      });
+    });
+  };
+
+  const filteredDisciplines: Discipline[] = searchFilteredDisciplines(
+    disciplines?.filter(
+      (discipline: { nome_campus: string; periodo: string }) =>
+        selectedCampus.includes(discipline.nome_campus) &&
+        selectedPeriod.includes(discipline.periodo)
+    ),
+    searchInput
   );
 
   // http://localhost:9101/lista-disciplinas/?disciplinas=89052,89336
@@ -332,101 +355,101 @@ export default function GridMaterias() {
           }}
         />
       ) : (
-        <ScrollShadow visibility={"bottom"}>
-          <div className="overflow-x-auto">
-            <div className="pesquisar-texto mb-8">
-              <div className="flex justify-between items-center">
-                <Input
-                  variant="bordered"
-                  placeholder="Digite"
-                  className="bg-foreground-200 rounded-medium border-default-200 focus:border-[#00007c]"
-                  startContent={
-                    <>
-                      <IoSearchOutline size={20} />
-                    </>
-                  }
-                />
+        <div className="overflow-x-auto">
+          <div className="pesquisar-texto mb-8">
+            <div className="flex justify-between items-center">
+              <Input
+                variant="bordered"
+                placeholder="Digite"
+                className="bg-foreground-200 rounded-medium border-default-200 focus:border-[#00007c]"
+                startContent={
+                  <>
+                    <IoSearchOutline size={20} />
+                  </>
+                }
+                value={searchInput}
+                isClearable
+                onClear={() => setSearchInput("")}
+                onChange={(e) => setSearchInput(e.target.value)}
+              />
 
-                <Popover placement="bottom-end">
-                  <PopoverTrigger>
-                    <Button
-                      size="sm"
-                      variant="solid"
-                      aria-label="Selecione os Filtros"
-                      className="ml-4 w-[5.5em] h-[4.5em] md:w-[4.5em] rounded-medium bg-[#00007c] text-white"
-                      isIconOnly
-                    >
-                      <IoFilterOutline size={18.5} />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent>
-                    <div className="flex flex-col space-y-4 p-2">
-                      <FiltrarCampus />
-                      <FiltrarPeriodo />
-                      <Colunas />
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
+              <Popover placement="bottom-end">
+                <PopoverTrigger>
+                  <Button
+                    size="sm"
+                    variant="solid"
+                    aria-label="Selecione os Filtros"
+                    className="ml-4 w-[5.5em] h-[4.5em] md:w-[4.5em] rounded-medium bg-[#00007c] text-white"
+                    isIconOnly
+                  >
+                    <IoFilterOutline size={18.5} />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent>
+                  <div className="flex flex-col space-y-4 p-2">
+                    <FiltrarCampus />
+                    <FiltrarPeriodo />
+                    <Colunas />
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
+          </div>
 
-            <div className="relative overflow-y-auto h-[35em]">
-              <table className="min-w-full divide-y divide-foreground-200">
-                <thead>
-                  <tr className="bg-foreground-100 sticky top-1 z-10 shadow-lg">
-                    <th></th>
+          <div className="relative overflow-y-auto h-[35em]">
+            <table className="min-w-full divide-y divide-foreground-200">
+              <thead>
+                <tr className="bg-foreground-100 sticky top-1 z-10 shadow-lg">
+                  <th></th>
+                  {visibleColumns.map(
+                    (column) =>
+                      !verifySelecteds(column.id) && (
+                        <th
+                          key={column.id}
+                          className={`px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300`}
+                        >
+                          {column.value}
+                        </th>
+                      )
+                  )}
+                </tr>
+              </thead>
+              <tbody className="divide-y text-center text-small font-normal divide-foreground-200">
+                {filteredDisciplines?.map((course, index) => (
+                  <tr
+                    key={index}
+                    className={`h-[5.5em] bg-opacity-50 transition-all ${
+                      disciplinasSelecionadas.includes(course.id)
+                        ? "bg-default-300"
+                        : index % 2 === 0
+                          ? "bg-foreground-50"
+                          : "bg-foreground-100"
+                    } hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer`}
+                  >
+                    <td className="h-full w-[2em]">
+                      <Checkbox
+                        isSelected={disciplinasSelecionadas.includes(course.id)}
+                        className="ml-2"
+                        onChange={() => salvarDisciplinas(course.id)}
+                      />
+                    </td>
                     {visibleColumns.map(
                       (column) =>
                         !verifySelecteds(column.id) && (
-                          <th
+                          <td
                             key={column.id}
-                            className={`px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300`}
+                            onClick={() => salvarDisciplinas(course.id)}
                           >
-                            {column.value}
-                          </th>
+                            {(course as any)[column.id]}
+                          </td>
                         )
                     )}
                   </tr>
-                </thead>
-                <tbody className="divide-y text-center text-small font-normal divide-foreground-200">
-                  {filteredDisciplines?.map((course, index) => (
-                    <tr
-                      key={index}
-                      className={`h-[5.5em] bg-opacity-50 transition-all ${
-                        disciplinasSelecionadas.includes(course.id)
-                          ? "bg-default-300"
-                          : index % 2 === 0
-                            ? "bg-foreground-50"
-                            : "bg-foreground-100"
-                      } hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer`}
-                    >
-                      <td className="h-full w-[2em]">
-                        <Checkbox
-                          isSelected={disciplinasSelecionadas.includes(
-                            course.id
-                          )}
-                          className="ml-2"
-                          onChange={() => salvarDisciplinas(course.id)}
-                        />
-                      </td>
-                      {visibleColumns.map(
-                        (column) =>
-                          !verifySelecteds(column.id) && (
-                            <td
-                              key={column.id}
-                              onClick={() => salvarDisciplinas(course.id)}
-                            >
-                              {(course as any)[column.id]}
-                            </td>
-                          )
-                      )}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </ScrollShadow>
+        </div>
       )}
     </>
   );
