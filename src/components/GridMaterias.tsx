@@ -98,6 +98,7 @@ export default function GridMaterias() {
 
     const urlFragment = selectedIndexes.join(",");
     sessionStorage.setItem("selectedDisciplines", JSON.stringify(urlFragment));
+    atualizarUrlComDisciplinas(selectedIndexes); // Atualiza a URL com as disciplinas selecionadas
   };
 
   const handleCampusSelectionChange = (keys: "all" | Set<React.Key>) => {
@@ -184,8 +185,6 @@ export default function GridMaterias() {
     searchInput
   );
 
-  // http://localhost:9101/lista-disciplinas/?disciplinas=89052,89336
-
   const [disciplinasSelecionadas, setDisciplinasSelecionadas] = useState<
     number[]
   >([]);
@@ -249,6 +248,21 @@ export default function GridMaterias() {
         .split(",")
         .map((id) => parseInt(id, 10));
       setDisciplinasSelecionadas(disciplinas);
+    }
+  }, []);
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const disciplinasParam = url.searchParams.get("disciplinas");
+
+    if (disciplinasParam) {
+      // Substitui ponto e vírgula por vírgula, se necessário
+      const disciplinas = disciplinasParam
+        .replace(/;/g, ",")
+        .split(",")
+        .map((id) => parseInt(id, 10));
+      setDisciplinasSelecionadas(disciplinas);
+      atualizarUrlComDisciplinas(disciplinas); // Atualiza a URL com as disciplinas selecionadas
     }
   }, []);
 
