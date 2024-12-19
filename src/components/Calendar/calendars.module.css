@@ -1,0 +1,13 @@
+.calendarContainer {
+  width: 100%;
+  max-width: 40em;
+  height: auto;
+  padding-left: 1.05em;
+  padding-right: 1.05em;
+}
+
+.fc-timegrid-slot {
+  height: 2em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}

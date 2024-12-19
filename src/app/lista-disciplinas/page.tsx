@@ -9,6 +9,7 @@ import ModalListaDisicplinas from "@/components/ModalListaDisciplinas";
 // assets
 import { SearchNormal as ISearch } from "iconsax-react";
 import { useRouter } from "next/router";
+import Calendar from "@/components/Calendar";
 // import { PiMagnifyingGlass } from "react-icons/pi";
 
 export default function ListaDiciplinas() {
@@ -36,7 +37,9 @@ export default function ListaDiciplinas() {
           </Button>
         </Header>
 
-        <div className="w-full flex flex-col items-center"></div>
+        <div className="w-full flex flex-col items-center">
+          <Calendar />
+        </div>
         <Footer />
       </main>
 
