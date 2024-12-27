@@ -21,20 +21,6 @@ import {
 
 import { IoFilterOutline, IoSearchOutline } from "react-icons/io5";
 
-interface Discipline {
-  id: number;
-  nome: string;
-  turma: string;
-  sigla: string;
-  creditos: string;
-  periodo: string;
-  nome_campus: string;
-  codigo: string;
-  horarios: { horas: string[]; semana: number }[];
-  vagas: number;
-  obrigatoriedades: { obrigatoriedade: string; curso_id: number }[];
-}
-
 export default function GridMaterias() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const disciplinesFromLocalStorage = localStorage.getItem("disciplines")!;

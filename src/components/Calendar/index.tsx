@@ -7,28 +7,24 @@ import ptBrLocale from "@fullcalendar/core/locales/pt-br";
 import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import styles from "./calendars.module.css";
+import dayjs from "dayjs";
+
+import { getDisciplinasSelecionadas } from "@/services/materiasSelecionadas";
+
+interface CalendarEvent {
+  title: string;
+  start: string;
+  end?: string;
+  color?: string;
+}
 
 interface CalendarioProps {
   title: string;
-  events: { title: string; start: string; end?: string; color?: string }[];
+  events: CalendarEvent[];
+  isLoading?: boolean;
 }
 
 const Calendario: React.FC<CalendarioProps> = ({ title, events }) => {
-  const eventos = [
-    {
-      title: "teste",
-      start: new Date(2023, 10, 25, 8, 0).toISOString(),
-      end: new Date(2023, 10, 25, 12, 0).toISOString(),
-      color: "purple",
-    },
-    {
-      title: "Evento de Segunda-feira",
-      start: new Date(2023, 9, 9, 8, 0).toISOString(),
-      end: new Date(2023, 9, 9, 11, 0).toISOString(),
-      color: "blue",
-    },
-  ];
-
   return (
     <div className="mt-8">
       <div className={`${styles.calendarContainer}`}>
@@ -41,7 +37,7 @@ const Calendario: React.FC<CalendarioProps> = ({ title, events }) => {
             listPlugin,
           ]}
           initialView="timeGridWeek"
-          events={eventos}
+          events={events}
           locale={ptBrLocale}
           firstDay={1}
           hiddenDays={[0]}
@@ -63,54 +59,81 @@ const Calendario: React.FC<CalendarioProps> = ({ title, events }) => {
   );
 };
 
-export default function Calendar() {
-  const eventsA = [
-    {
-      title: "teste",
-      start: new Date(2023, 10, 25, 8, 0).toISOString(),
-      end: new Date(2023, 10, 25, 12, 0).toISOString(),
-      color: "purple",
-    },
-    {
-      title: "Evento de Segunda-feira",
-      start: new Date(2023, 9, 9, 8, 0).toISOString(),
-      end: new Date(2023, 9, 9, 11, 0).toISOString(),
-      color: "blue",
-    },
-  ];
+const shouldIncludeHorario = (
+  periodicidade: string,
+  isWeekA: boolean
+): boolean => {
+  if (periodicidade === "semanal") return true;
+  if (periodicidade === "quinzenal(I)") return isWeekA;
+  if (periodicidade === "quinzenal(II)") return !isWeekA;
+  return false;
+};
 
-  const [eventsB, setEventsB] = useState<{ title: string; start: string }[]>(
-    []
+const calculateEventTime = (dayIndex: number, time: string): string => {
+  const [hour, minute] = time.split(":").map(Number);
+  return dayjs()
+    .startOf("week")
+    .add(dayIndex, "day")
+    .hour(hour)
+    .minute(minute)
+    .toISOString();
+};
+
+const colors = [
+  "#780000",
+  "#c1121f",
+  "#ffb521",
+  "#003049",
+  "#669bbc",
+  "#00007c",
+];
+
+const getRandomColor = (): string => {
+  return colors[Math.floor(Math.random() * colors.length)];
+};
+
+const generateCalendarEvents = (
+  disciplinas: any[],
+  isWeekA: boolean
+): CalendarEvent[] => {
+  return disciplinas.flatMap((disciplina) => {
+    return disciplina.horarios
+      .filter((horario: { periodicidade_extenso: string }) =>
+        shouldIncludeHorario(horario.periodicidade_extenso, isWeekA)
+      )
+      .map((horario: { semana: number; horas: string[] }) => {
+        const dayIndex = horario.semana;
+        const startTime = horario.horas[0];
+        const endTime = horario.horas[horario.horas.length - 1];
+
+        return {
+          title: disciplina.sigla + " " + disciplina.nome,
+          start: calculateEventTime(dayIndex, startTime),
+          end: calculateEventTime(dayIndex, endTime),
+          color: getRandomColor(),
+        };
+      });
+  });
+};
+
+export default function Calendar() {
+  const disciplinasSelectionadas: Discipline[] = getDisciplinasSelecionadas();
+
+  const eventosA: CalendarEvent[] = generateCalendarEvents(
+    disciplinasSelectionadas,
+    false
   );
 
-  useEffect(() => {
-    const disciplinesFromLocalStorage = JSON.parse(
-      localStorage.getItem("disciplines")!
-    );
-    const urlParams = new URLSearchParams(window.location.search);
-    const selectedDisciplines =
-      urlParams.get("disciplinas")?.split(/[, %2C]+/) || [];
-
-    const selectedEventsB = disciplinesFromLocalStorage
-      .filter((disciplina: any) => {
-        const isSelected = selectedDisciplines.includes(
-          disciplina.id.toString()
-        );
-        return isSelected;
-      })
-      .map((disciplina: any) => ({
-        title: disciplina.nome,
-        start: disciplina.horarios[0].horas[0],
-      }));
-
-    setEventsB(selectedEventsB);
-  }, []);
+  const eventosB: CalendarEvent[] = generateCalendarEvents(
+    disciplinasSelectionadas,
+    true
+  );
 
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Calendario title="Semana A" events={eventsA} />
-        <Calendario title="Semana B" events={eventsB} />
+        <Calendario title="Semana A" events={eventosA} />
+        <Calendario title="Semana B" events={eventosB} />
       </div>
     </>
   );

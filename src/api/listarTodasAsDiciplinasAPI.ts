@@ -49,9 +49,17 @@ async function listaTodasDisciplinasAPI(): Promise<Discipline[]> {
           nome_campus: discipline.nome_campus.replace("Campus ", "").trim(),
           codigo: discipline.codigo,
           horarios: discipline.horarios.map(
-            (horario: { horas: any; semana: any }) => ({
+            (horario: {
+              periodicidade_extenso: any;
+              horas: any;
+              semana: any;
+            }) => ({
               horas: horario.horas,
               semana: horario.semana,
+              periodicidade_extenso: horario.periodicidade_extenso.replace(
+                /[\s-]/g,
+                ""
+              ),
             })
           ),
           vagas: discipline.vagas,

@@ -16,6 +16,7 @@
     "cheerio": "^1.0.0-rc.12",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "dayjs": "^1.11.13",
     "framer-motion": "^11.0.8",
     "fs": "^0.0.1-security",
     "fullcalendar": "^6.1.15",
