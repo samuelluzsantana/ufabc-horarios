@@ -17,11 +17,20 @@ import {
   Progress,
   ScrollShadow,
   Selection,
+  Autocomplete,
+  AutocompleteItem,
 } from "@nextui-org/react";
 
 import { IoFilterOutline, IoSearchOutline } from "react-icons/io5";
+import { useRouter } from "next/navigation";
+import router from "next/router";
+import {
+  removeDuplicatas,
+  removeDuplicatasPorChave,
+} from "@/services/removeDuplicates";
 
 export default function GridMaterias() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const disciplinesFromLocalStorage = localStorage.getItem("disciplines")!;
   const [disciplines, setDisciplines] = useState<Discipline[]>(
@@ -167,7 +176,7 @@ export default function GridMaterias() {
       (discipline: { nome_campus: string; periodo: string }) =>
         selectedCampus.includes(discipline.nome_campus) &&
         selectedPeriod.includes(discipline.periodo)
-    ),
+    ) || [],
     searchInput
   );
 
@@ -176,18 +185,16 @@ export default function GridMaterias() {
   >([]);
 
   function atualizarUrlComDisciplinas(disciplinas: number[]) {
-    const url = new URL(window.location.href);
+    const params = new URLSearchParams(window.location.search);
 
-    // Garante que a URL termine com uma barra
-    if (!url.pathname.endsWith("/")) {
-      url.pathname += "/";
+    if (disciplinas.length > 0) {
+      params.set("disciplinas", disciplinas.join(","));
+    } else {
+      params.delete("disciplinas");
     }
 
-    url.searchParams.set("disciplinas", disciplinas.join(","));
-
-    const newUrl = url.toString().replace(/%2C/g, ",");
-
-    window.history.pushState({}, "", newUrl);
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    router.push(decodeURIComponent(newUrl));
   }
 
   // Função para salvar disciplinas e atualizar a URL
@@ -358,20 +365,33 @@ export default function GridMaterias() {
         <div className="overflow-x-auto">
           <div className="pesquisar-texto mb-8">
             <div className="flex justify-between items-center">
-              <Input
+              <Autocomplete
                 variant="bordered"
-                placeholder="Digite"
+                defaultItems={removeDuplicatasPorChave(
+                  filteredDisciplines || [],
+                  "nome"
+                )}
+                placeholder="Digite o nome da disciplina"
                 className="bg-foreground-200 rounded-medium border-default-200 focus:border-[#00007c]"
-                startContent={
-                  <>
-                    <IoSearchOutline size={20} />
-                  </>
-                }
+                startContent={<IoSearchOutline size={20} />}
                 value={searchInput}
-                isClearable
                 onClear={() => setSearchInput("")}
-                onChange={(e) => setSearchInput(e.target.value)}
-              />
+                onInputChange={(value) => setSearchInput(value)}
+                classNames={{
+                  base: "max-w-full",
+                  listbox: "max-h-[300px]",
+                  popoverContent: "w-full",
+                }}
+              >
+                {(disciplina) => (
+                  <AutocompleteItem
+                    key={disciplina.id}
+                    textValue={disciplina.nome}
+                  >
+                    {disciplina.nome}
+                  </AutocompleteItem>
+                )}
+              </Autocomplete>
 
               <Popover placement="bottom-end">
                 <PopoverTrigger>
