@@ -152,6 +152,7 @@ export default function GridMaterias() {
   }, []);
 
   const [searchInput, setSearchInput] = useState("");
+  const [isAutocompleteOpen, setIsAutocompleteOpen] = useState(false);
 
   const searchFilteredDisciplines = (
     disciplines: Discipline[],
@@ -375,8 +376,13 @@ export default function GridMaterias() {
                 className="bg-foreground-200 rounded-medium border-default-200 focus:border-[#00007c]"
                 startContent={<IoSearchOutline size={20} />}
                 value={searchInput}
-                onClear={() => setSearchInput("")}
+                onClear={() => {
+                  setSearchInput("");
+                }}
                 onInputChange={(value) => setSearchInput(value)}
+                onSelectionChange={() => {
+                  setIsAutocompleteOpen(false);
+                }}
                 classNames={{
                   base: "max-w-full",
                   listbox: "max-h-[300px]",
