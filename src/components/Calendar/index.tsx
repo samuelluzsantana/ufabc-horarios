@@ -1,19 +1,14 @@
 "use client";
-// react
 import React, { useEffect, useState } from "react";
-// components
-import FullCalendar from "@fullcalendar/react";
-// calendar plugins
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
+import FullCalendar from "@fullcalendar/react";
+import ptBrLocale from "@fullcalendar/core/locales/pt-br";
 import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
-import ptBrLocale from "@fullcalendar/core/locales/pt-br";
-// styles
 import styles from "./calendars.module.css";
-// utils
 import dayjs from "dayjs";
-// Services
+
 import { getDisciplinasSelecionadas } from "@/services/materiasSelecionadas";
 
 interface CalendarEvent {
@@ -27,18 +22,6 @@ interface CalendarioProps {
   title: string;
   events: CalendarEvent[];
   isLoading?: boolean;
-}
-
-interface Horario {
-  periodicidade_extenso: string;
-  semana: number;
-  horas: string[];
-}
-
-interface Disciplina {
-  sigla: string;
-  nome: string;
-  horarios: Horario[];
 }
 
 const Calendario: React.FC<CalendarioProps> = ({ title, events }) => {
@@ -76,111 +59,71 @@ const Calendario: React.FC<CalendarioProps> = ({ title, events }) => {
   );
 };
 
-/**
- * Verifica se um horário deve ser incluído com base na sua periodicidade
- * @param periodicidade - Periodicidade do horário ("semanal", "quinzenal(I)" ou "quinzenal(II)")
- * @param ehSemanaA - Indica se é a semana A (true) ou B (false)
- * @returns Verdadeiro se o horário deve ser incluído, falso caso contrário
- */
-const deveIncluirHorario = (
+const shouldIncludeHorario = (
   periodicidade: string,
-  ehSemanaA: boolean
+  isWeekA: boolean
 ): boolean => {
   if (periodicidade === "semanal") return true;
-  if (periodicidade === "quinzenal(I)") return ehSemanaA;
-  if (periodicidade === "quinzenal(II)") return !ehSemanaA;
+  if (periodicidade === "quinzenal(I)") return isWeekA;
+  if (periodicidade === "quinzenal(II)") return !isWeekA;
   return false;
 };
 
-/**
- * Calcula o horário de uma disciplina para um determinado dia da semana
- * @param indiceDia - Índice do dia da semana (1-6, onde 1 é segunda-feira)
- * @param horario - Horário no formato "HH:mm"
- * @returns String ISO com a data e hora calculadas
- */
-const calcularHorarioDisciplina = (
-  indiceDia: number,
-  horario: string
-): string => {
-  const [hora, minuto] = horario.split(":").map(Number);
+const calculateEventTime = (dayIndex: number, time: string): string => {
+  const [hour, minute] = time.split(":").map(Number);
   return dayjs()
     .startOf("week")
-    .add(indiceDia, "day")
-    .hour(hora)
-    .minute(minuto)
+    .add(dayIndex, "day")
+    .hour(hour)
+    .minute(minute)
     .toISOString();
 };
 
-/** Array de cores para as disciplinas */
-const cores = [
-  "#F44336", //Red
-  "#9C27B0", //Purple
-  "#009688", //Teal
-  "#8BC34A", //Light Green
-  "#607D8B", //Blue Grey
-  "#FF5722", //Deep Orange
-  "#4CAF50", //Green
-  "#03A9F4", //Light Blue
-  "#E91E63", //Pink
-  "#795548", //Brown
+const colors = [
+  "#780000",
+  "#c1121f",
+  "#ffb521",
+  "#003049",
+  "#669bbc",
+  "#00007c",
 ];
 
-/**
- * Obtém uma cor do array de cores com base no índice
- * @param indice - Índice para selecionar a cor
- * @returns Cor em formato hexadecimal
- */
-const obterCorPorIndice = (indice: number): string => {
-  return cores[indice % cores.length];
+const getColorByIndex = (index: number): string => {
+  return colors[index % colors.length];
 };
 
-/**
- * Gera eventos do calendário a partir das disciplinas selecionadas
- * @param disciplinas - Array de disciplinas com seus horários
- * @param ehSemanaA - Indica se é a semana A (true) ou B (false)
- * @returns Array de eventos formatados para o calendário
- */
-const gerarEventosCalendario = (
-  disciplinas: Disciplina[],
-  ehSemanaA: boolean
+const generateCalendarEvents = (
+  disciplinas: any[],
+  isWeekA: boolean
 ): CalendarEvent[] => {
-  return disciplinas.flatMap((disciplina, indice) => {
-    const { sigla, nome, horarios } = disciplina;
-    const tituloDisciplina = `${sigla} ${nome}`;
-    const corDisciplina = obterCorPorIndice(indice);
-
-    return horarios
-      .filter((horario) =>
-        deveIncluirHorario(horario.periodicidade_extenso, ehSemanaA)
+  return disciplinas.flatMap((disciplina, index) => {
+    return disciplina.horarios
+      .filter((horario: { periodicidade_extenso: string }) =>
+        shouldIncludeHorario(horario.periodicidade_extenso, isWeekA)
       )
-      .map((horario) => {
-        const { semana: indiceDia, horas } = horario;
-        const horarioInicio = horas[0];
-        const horarioFim = horas[horas.length - 1];
+      .map((horario: { semana: number; horas: string[] }) => {
+        const dayIndex = horario.semana;
+        const startTime = horario.horas[0];
+        const endTime = horario.horas[horario.horas.length - 1];
 
         return {
-          title: tituloDisciplina,
-          start: calcularHorarioDisciplina(indiceDia, horarioInicio),
-          end: calcularHorarioDisciplina(indiceDia, horarioFim),
-          color: corDisciplina,
+          title: disciplina.sigla + " " + disciplina.nome,
+          start: calculateEventTime(dayIndex, startTime),
+          end: calculateEventTime(dayIndex, endTime),
+          color: getColorByIndex(index),
         };
       });
   });
 };
-
-/**
- * Componente principal do calendário que exibe as semanas A e B
- * @returns Componente com dois calendários lado a lado
- */
 export default function Calendar() {
   const disciplinasSelectionadas: Discipline[] = getDisciplinasSelecionadas();
 
-  const eventosA: CalendarEvent[] = gerarEventosCalendario(
+  const eventosA: CalendarEvent[] = generateCalendarEvents(
     disciplinasSelectionadas,
     false
   );
 
-  const eventosB: CalendarEvent[] = gerarEventosCalendario(
+  const eventosB: CalendarEvent[] = generateCalendarEvents(
     disciplinasSelectionadas,
     true
   );
