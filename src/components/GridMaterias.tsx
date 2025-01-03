@@ -80,20 +80,7 @@ export default function GridMaterias() {
   const selectedKeys = new Set(selectedColumns);
 
   const handleSelectionChange = (keys: Selection) => {
-    if (keys === "all") {
-      const allColumns = visibleColumns.map((col) => col.id);
-      setSelectedColumns(allColumns);
-      sessionStorage.setItem("selectedColumns", JSON.stringify(allColumns));
-      return;
-    }
-
-    const selectedArray = Array.from(keys);
-    if (selectedArray.length === 0) {
-      // Mantenha pelo menos uma coluna selecionada
-      return;
-    }
-
-    const updatedColumns = selectedArray.map((key) => String(key));
+    const updatedColumns = Array.from(keys).map((key) => key.toString());
     setSelectedColumns(updatedColumns);
     sessionStorage.setItem("selectedColumns", JSON.stringify(updatedColumns));
   };
@@ -288,12 +275,9 @@ export default function GridMaterias() {
           <DropdownMenu
             closeOnSelect={false}
             disallowEmptySelection
-            selectedKeys={selectedPeriod}
+            selectedKeys={new Set(selectedPeriod)}
             selectionMode="multiple"
-            onSelectionChange={(keys) => {
-              if (typeof keys === "string") return;
-              handlePeriodSelectionChange(keys);
-            }}
+            onSelectionChange={handlePeriodSelectionChange}
           >
             <DropdownItem key="Diurno">Diurno</DropdownItem>
             <DropdownItem key="Noturno">Noturno</DropdownItem>
@@ -319,12 +303,9 @@ export default function GridMaterias() {
           </DropdownTrigger>
           <DropdownMenu
             disallowEmptySelection
-            selectedKeys={selectedCampus}
+            selectedKeys={new Set(selectedCampus)}
             selectionMode="multiple"
-            onSelectionChange={(keys) => {
-              if (typeof keys === "string") return;
-              handleCampusSelectionChange(keys);
-            }}
+            onSelectionChange={handleCampusSelectionChange}
             closeOnSelect={false}
           >
             <DropdownItem key="Santo André">Santo André</DropdownItem>
@@ -353,17 +334,16 @@ export default function GridMaterias() {
           </DropdownTrigger>
           <DropdownMenu
             closeOnSelect={false}
-            selectedKeys={selectedColumns}
+            selectedKeys={new Set(selectedColumns)}
             selectionMode="multiple"
-            onSelectionChange={(keys) => {
-              if (typeof keys === "string") return;
-              handleSelectionChange(keys);
-            }}
+            onSelectionChange={handleSelectionChange}
             disallowEmptySelection
           >
-            {visibleColumns.map((column) => (
-              <DropdownItem key={column.id}>{column.value}</DropdownItem>
-            ))}
+            <>
+              {visibleColumns.map((column) => (
+                <DropdownItem key={column.id}>{column.value}</DropdownItem>
+              ))}
+            </>
           </DropdownMenu>
         </Dropdown>
       </>
