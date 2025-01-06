@@ -2,8 +2,8 @@
 
 1. [x] Corrigir esquema de URL
 2. [ ] Salvar predefinições de filtragem no cookie
-3. [ ] Filtragem por cursos (obrigatoriedade)
-4. [ ] Design para mostrar disciplinas selecionadas
+3. [ ] Design para mostrar disciplinas selecionadas
+4. [ ] Filtragem por cursos (obrigatoriedade)
 5. [ ] Exibição do total de créditos disponíveis
 6. [ ] Página "Sobre"
 7. [ ] Página de Change-log
@@ -32,19 +32,19 @@
 
 ---
 
-#### 3. **Filtragem por Cursos (Obrigatoriedade)**
-
-- Adicionar um filtro que permita ao usuário selecionar disciplinas com base na obrigatoriedade do curso.
-- Incluir opções como "Obrigatório", "Limitada" e "Optativa".
-- Garantir que a interface seja intuitiva para seleção de filtros.
-
----
-
-#### 4. **Design para Mostrar Disciplinas Selecionadas**
+#### 3. **Design para Mostrar Disciplinas Selecionadas**
 
 - Criar um componente visual para listar as disciplinas escolhidas pelo usuário.
 - Incluir informações como nome, horário, créditos e botão para remoção.
 - Garantir que o layout seja responsivo.
+
+---
+
+#### 4. **Filtragem por Cursos (Obrigatoriedade)**
+
+- Adicionar um filtro que permita ao usuário selecionar disciplinas com base na obrigatoriedade do curso.
+- Incluir opções como "Obrigatório", "Limitada" e "Optativa".
+- Garantir que a interface seja intuitiva para seleção de filtros.
 
 ---
 

@@ -37,14 +37,33 @@ export default function GridMaterias() {
     JSON.parse(disciplinesFromLocalStorage)
   );
 
-  const [selectedCampus, setSelectedCampus] = useState<string[]>([
-    "Santo André",
-    "São Bernardo do Campo",
-  ]);
-  const [selectedPeriod, setSelectedPeriod] = useState<string[]>([
-    "Diurno",
-    "Noturno",
-  ]);
+  const getFiltersFromSessionStorage = (): {
+    campus: string[];
+    periodo: string[];
+  } => {
+    const savedFilters = sessionStorage.getItem("selectedFilters");
+    if (!savedFilters) return { campus: [], periodo: [] };
+
+    try {
+      const parsedFilters = JSON.parse(savedFilters);
+      return parsedFilters.selectedFilters || { campus: [], periodo: [] };
+    } catch {
+      console.error("Erro ao carregar filtros do sessionStorage");
+      return { campus: [], periodo: [] };
+    }
+  };
+
+  const { campus: defaultCampus, periodo: defaultPeriod } =
+    getFiltersFromSessionStorage();
+
+  const [selectedCampus, setSelectedCampus] = useState<string[]>(
+    defaultCampus.length > 0
+      ? defaultCampus
+      : ["Santo André", "São Bernardo do Campo"]
+  );
+  const [selectedPeriod, setSelectedPeriod] = useState<string[]>(
+    defaultPeriod.length > 0 ? defaultPeriod : ["Diurno", "Noturno"]
+  );
 
   const isSmallScreen = window.innerWidth < 450;
 
@@ -107,18 +126,16 @@ export default function GridMaterias() {
     atualizarUrlComDisciplinas(selectedIndexes); // Atualiza a URL com as disciplinas selecionadas
   };
 
-  const handleCampusSelectionChange = (keys: "all" | Set<React.Key>) => {
-    const newSelectedCampus = Array.from(keys);
-    if (newSelectedCampus.length > 0) {
-      setSelectedCampus(newSelectedCampus as string[]);
-    }
+  const handleCampusSelectionChange = (keys: Set<React.Key>) => {
+    const selected = Array.from(keys) as string[];
+    setSelectedCampus(selected);
+    saveFiltersToSessionStorage({ campus: selected, periodo: selectedPeriod });
   };
 
-  const handlePeriodSelectionChange = (keys: "all" | Set<React.Key>) => {
-    const newSelectedPeriod = Array.from(keys);
-    if (newSelectedPeriod.length > 0) {
-      setSelectedPeriod(newSelectedPeriod as string[]);
-    }
+  const handlePeriodSelectionChange = (keys: Set<React.Key>) => {
+    const selected = Array.from(keys) as string[];
+    setSelectedPeriod(selected);
+    saveFiltersToSessionStorage({ campus: selectedCampus, periodo: selected });
   };
 
   function verifySelecteds(valor: string): boolean {
@@ -369,6 +386,20 @@ export default function GridMaterias() {
       </>
     );
   };
+
+  const saveFiltersToSessionStorage = (filters: {
+    campus: string[];
+    periodo: string[];
+  }) => {
+    const filtersData = { selectedFilters: filters };
+    sessionStorage.setItem("selectedFilters", JSON.stringify(filtersData));
+  };
+
+  useEffect(() => {
+    const { campus, periodo } = getFiltersFromSessionStorage();
+    if (campus.length > 0) setSelectedCampus(campus);
+    if (periodo.length > 0) setSelectedPeriod(periodo);
+  }, []);
 
   return (
     <>
