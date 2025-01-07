@@ -200,18 +200,51 @@ export default function GridMaterias() {
     });
   };
 
-  const filteredDisciplines: Discipline[] = searchFilteredDisciplines(
-    disciplines?.filter(
-      (discipline: { nome_campus: string; periodo: string }) =>
-        selectedCampus.includes(discipline.nome_campus) &&
-        selectedPeriod.includes(discipline.periodo)
-    ) || [],
-    searchInput
-  );
-
   const [disciplinasSelecionadas, setDisciplinasSelecionadas] = useState<
     number[]
   >([]);
+
+  const [ocultarConflitos, setOcultarConflitos] = useState(false);
+
+  function verificarConflitoMultiplo(
+    disciplina: Discipline,
+    selecionadas: Discipline[]
+  ): boolean {
+    return selecionadas.some((selecionada) => {
+      return selecionada.horarios.some((horarioSelecionado) => {
+        return disciplina.horarios.some((horario) => {
+          return (
+            horario.semana === horarioSelecionado.semana &&
+            horario.horas.some((hora) =>
+              horarioSelecionado.horas.includes(hora)
+            )
+          );
+        });
+      });
+    });
+  }
+
+  const filteredDisciplines = ocultarConflitos
+    ? searchFilteredDisciplines(
+        disciplines?.filter(
+          (discipline) =>
+            selectedCampus.includes(discipline.nome_campus) &&
+            selectedPeriod.includes(discipline.periodo) &&
+            !verificarConflitoMultiplo(
+              discipline,
+              disciplines.filter((d) => disciplinasSelecionadas.includes(d.id))
+            )
+        ) || [],
+        searchInput
+      )
+    : searchFilteredDisciplines(
+        disciplines?.filter(
+          (discipline) =>
+            selectedCampus.includes(discipline.nome_campus) &&
+            selectedPeriod.includes(discipline.periodo)
+        ) || [],
+        searchInput
+      );
 
   function atualizarUrlComDisciplinas(disciplinas: number[]) {
     const params = new URLSearchParams(window.location.search);
@@ -401,6 +434,22 @@ export default function GridMaterias() {
     if (periodo.length > 0) setSelectedPeriod(periodo);
   }, []);
 
+  function ocultarDisciplinasComConflito(
+    disciplinas: Discipline[]
+  ): Discipline[] {
+    const selecionadas = disciplinas.filter((d) =>
+      disciplinasSelecionadas.includes(d.id)
+    );
+
+    if (selecionadas.length === 0) {
+      return disciplinas;
+    }
+
+    return disciplinas.filter(
+      (disciplina) => !verificarConflitoMultiplo(disciplina, selecionadas)
+    );
+  }
+
   return (
     <>
       {isLoading ? (
@@ -468,6 +517,17 @@ export default function GridMaterias() {
                   </div>
                 </PopoverContent>
               </Popover>
+            </div>
+
+            <div className="flex items-center mt-4 ml-2">
+              <Checkbox
+                size="sm"
+                className="text-sm"
+                isSelected={ocultarConflitos}
+                onChange={() => setOcultarConflitos(!ocultarConflitos)}
+              >
+                Ocultar turmas em conflito
+              </Checkbox>
             </div>
           </div>
 

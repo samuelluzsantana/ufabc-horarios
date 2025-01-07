@@ -1,7 +1,7 @@
 ### **Checklist para o PM**
 
 1. [x] Corrigir esquema de URL
-2. [ ] Salvar predefinições de filtragem no cookie
+2. [x] Salvar predefinições de filtragem no cookie
 3. [ ] Design para mostrar disciplinas selecionadas
 4. [ ] Filtragem por cursos (obrigatoriedade)
 5. [ ] Exibição do total de créditos disponíveis
