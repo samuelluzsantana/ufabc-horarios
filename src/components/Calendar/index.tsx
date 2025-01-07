@@ -88,15 +88,15 @@ const colors = [
   "#00007c",
 ];
 
-const getRandomColor = (): string => {
-  return colors[Math.floor(Math.random() * colors.length)];
+const getColorByIndex = (index: number): string => {
+  return colors[index % colors.length];
 };
 
 const generateCalendarEvents = (
   disciplinas: any[],
   isWeekA: boolean
 ): CalendarEvent[] => {
-  return disciplinas.flatMap((disciplina) => {
+  return disciplinas.flatMap((disciplina, index) => {
     return disciplina.horarios
       .filter((horario: { periodicidade_extenso: string }) =>
         shouldIncludeHorario(horario.periodicidade_extenso, isWeekA)
@@ -110,12 +110,11 @@ const generateCalendarEvents = (
           title: disciplina.sigla + " " + disciplina.nome,
           start: calculateEventTime(dayIndex, startTime),
           end: calculateEventTime(dayIndex, endTime),
-          color: getRandomColor(),
+          color: getColorByIndex(index),
         };
       });
   });
 };
-
 export default function Calendar() {
   const disciplinasSelectionadas: Discipline[] = getDisciplinasSelecionadas();
 

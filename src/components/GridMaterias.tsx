@@ -17,25 +17,53 @@ import {
   Progress,
   ScrollShadow,
   Selection,
+  Autocomplete,
+  AutocompleteItem,
 } from "@nextui-org/react";
 
 import { IoFilterOutline, IoSearchOutline } from "react-icons/io5";
+import { useRouter } from "next/navigation";
+import router from "next/router";
+import {
+  removeDuplicatas,
+  removeDuplicatasPorChave,
+} from "@/services/removeDuplicates";
 
 export default function GridMaterias() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const disciplinesFromLocalStorage = localStorage.getItem("disciplines")!;
   const [disciplines, setDisciplines] = useState<Discipline[]>(
     JSON.parse(disciplinesFromLocalStorage)
   );
 
-  const [selectedCampus, setSelectedCampus] = useState<string[]>([
-    "Santo André",
-    "São Bernardo do Campo",
-  ]);
-  const [selectedPeriod, setSelectedPeriod] = useState<string[]>([
-    "Diurno",
-    "Noturno",
-  ]);
+  const getFiltersFromSessionStorage = (): {
+    campus: string[];
+    periodo: string[];
+  } => {
+    const savedFilters = sessionStorage.getItem("selectedFilters");
+    if (!savedFilters) return { campus: [], periodo: [] };
+
+    try {
+      const parsedFilters = JSON.parse(savedFilters);
+      return parsedFilters.selectedFilters || { campus: [], periodo: [] };
+    } catch {
+      console.error("Erro ao carregar filtros do sessionStorage");
+      return { campus: [], periodo: [] };
+    }
+  };
+
+  const { campus: defaultCampus, periodo: defaultPeriod } =
+    getFiltersFromSessionStorage();
+
+  const [selectedCampus, setSelectedCampus] = useState<string[]>(
+    defaultCampus.length > 0
+      ? defaultCampus
+      : ["Santo André", "São Bernardo do Campo"]
+  );
+  const [selectedPeriod, setSelectedPeriod] = useState<string[]>(
+    defaultPeriod.length > 0 ? defaultPeriod : ["Diurno", "Noturno"]
+  );
 
   const isSmallScreen = window.innerWidth < 450;
 
@@ -71,10 +99,21 @@ export default function GridMaterias() {
   const selectedKeys = new Set(selectedColumns);
 
   const handleSelectionChange = (keys: Selection) => {
-    // Convert each Key to a string
-    const updatedColumns = Array.from(keys).map((key) => key.toString());
+    if (keys === "all") {
+      const allColumns = visibleColumns.map((col) => col.id);
+      setSelectedColumns(allColumns);
+      sessionStorage.setItem("selectedColumns", JSON.stringify(allColumns));
+      return;
+    }
 
-    setSelectedColumns(updatedColumns); // Now safe to update state
+    const selectedArray = Array.from(keys);
+    if (selectedArray.length === 0) {
+      // Mantenha pelo menos uma coluna selecionada
+      return;
+    }
+
+    const updatedColumns = selectedArray.map((key) => String(key));
+    setSelectedColumns(updatedColumns);
     sessionStorage.setItem("selectedColumns", JSON.stringify(updatedColumns));
   };
 
@@ -87,18 +126,16 @@ export default function GridMaterias() {
     atualizarUrlComDisciplinas(selectedIndexes); // Atualiza a URL com as disciplinas selecionadas
   };
 
-  const handleCampusSelectionChange = (keys: "all" | Set<React.Key>) => {
-    const newSelectedCampus = Array.from(keys);
-    if (newSelectedCampus.length > 0) {
-      setSelectedCampus(newSelectedCampus as string[]);
-    }
+  const handleCampusSelectionChange = (keys: Set<React.Key>) => {
+    const selected = Array.from(keys) as string[];
+    setSelectedCampus(selected);
+    saveFiltersToSessionStorage({ campus: selected, periodo: selectedPeriod });
   };
 
-  const handlePeriodSelectionChange = (keys: "all" | Set<React.Key>) => {
-    const newSelectedPeriod = Array.from(keys);
-    if (newSelectedPeriod.length > 0) {
-      setSelectedPeriod(newSelectedPeriod as string[]);
-    }
+  const handlePeriodSelectionChange = (keys: Set<React.Key>) => {
+    const selected = Array.from(keys) as string[];
+    setSelectedPeriod(selected);
+    saveFiltersToSessionStorage({ campus: selectedCampus, periodo: selected });
   };
 
   function verifySelecteds(valor: string): boolean {
@@ -143,6 +180,7 @@ export default function GridMaterias() {
   }, []);
 
   const [searchInput, setSearchInput] = useState("");
+  const [isAutocompleteOpen, setIsAutocompleteOpen] = useState(false);
 
   const searchFilteredDisciplines = (
     disciplines: Discipline[],
@@ -162,32 +200,63 @@ export default function GridMaterias() {
     });
   };
 
-  const filteredDisciplines: Discipline[] = searchFilteredDisciplines(
-    disciplines?.filter(
-      (discipline: { nome_campus: string; periodo: string }) =>
-        selectedCampus.includes(discipline.nome_campus) &&
-        selectedPeriod.includes(discipline.periodo)
-    ),
-    searchInput
-  );
-
   const [disciplinasSelecionadas, setDisciplinasSelecionadas] = useState<
     number[]
   >([]);
 
-  function atualizarUrlComDisciplinas(disciplinas: number[]) {
-    const url = new URL(window.location.href);
+  const [ocultarConflitos, setOcultarConflitos] = useState(false);
 
-    // Garante que a URL termine com uma barra
-    if (!url.pathname.endsWith("/")) {
-      url.pathname += "/";
+  function verificarConflitoMultiplo(
+    disciplina: Discipline,
+    selecionadas: Discipline[]
+  ): boolean {
+    return selecionadas.some((selecionada) => {
+      return selecionada.horarios.some((horarioSelecionado) => {
+        return disciplina.horarios.some((horario) => {
+          return (
+            horario.semana === horarioSelecionado.semana &&
+            horario.horas.some((hora) =>
+              horarioSelecionado.horas.includes(hora)
+            )
+          );
+        });
+      });
+    });
+  }
+
+  const filteredDisciplines = ocultarConflitos
+    ? searchFilteredDisciplines(
+        disciplines?.filter(
+          (discipline) =>
+            selectedCampus.includes(discipline.nome_campus) &&
+            selectedPeriod.includes(discipline.periodo) &&
+            !verificarConflitoMultiplo(
+              discipline,
+              disciplines.filter((d) => disciplinasSelecionadas.includes(d.id))
+            )
+        ) || [],
+        searchInput
+      )
+    : searchFilteredDisciplines(
+        disciplines?.filter(
+          (discipline) =>
+            selectedCampus.includes(discipline.nome_campus) &&
+            selectedPeriod.includes(discipline.periodo)
+        ) || [],
+        searchInput
+      );
+
+  function atualizarUrlComDisciplinas(disciplinas: number[]) {
+    const params = new URLSearchParams(window.location.search);
+
+    if (disciplinas.length > 0) {
+      params.set("disciplinas", disciplinas.join(","));
+    } else {
+      params.delete("disciplinas");
     }
 
-    url.searchParams.set("disciplinas", disciplinas.join(","));
-
-    const newUrl = url.toString().replace(/%2C/g, ",");
-
-    window.history.pushState({}, "", newUrl);
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    router.push(decodeURIComponent(newUrl));
   }
 
   // Função para salvar disciplinas e atualizar a URL
@@ -269,9 +338,12 @@ export default function GridMaterias() {
           <DropdownMenu
             closeOnSelect={false}
             disallowEmptySelection
-            selectedKeys={new Set(selectedPeriod)}
+            selectedKeys={selectedPeriod}
             selectionMode="multiple"
-            onSelectionChange={handlePeriodSelectionChange}
+            onSelectionChange={(keys) => {
+              if (typeof keys === "string") return;
+              handlePeriodSelectionChange(keys);
+            }}
           >
             <DropdownItem key="Diurno">Diurno</DropdownItem>
             <DropdownItem key="Noturno">Noturno</DropdownItem>
@@ -297,9 +369,12 @@ export default function GridMaterias() {
           </DropdownTrigger>
           <DropdownMenu
             disallowEmptySelection
-            selectedKeys={new Set(selectedCampus)}
+            selectedKeys={selectedCampus}
             selectionMode="multiple"
-            onSelectionChange={handleCampusSelectionChange}
+            onSelectionChange={(keys) => {
+              if (typeof keys === "string") return;
+              handleCampusSelectionChange(keys);
+            }}
             closeOnSelect={false}
           >
             <DropdownItem key="Santo André">Santo André</DropdownItem>
@@ -328,21 +403,52 @@ export default function GridMaterias() {
           </DropdownTrigger>
           <DropdownMenu
             closeOnSelect={false}
-            selectedKeys={new Set(selectedColumns)}
+            selectedKeys={selectedColumns}
             selectionMode="multiple"
-            onSelectionChange={handleSelectionChange}
+            onSelectionChange={(keys) => {
+              if (typeof keys === "string") return;
+              handleSelectionChange(keys);
+            }}
             disallowEmptySelection
           >
-            <>
-              {visibleColumns.map((column) => (
-                <DropdownItem key={column.id}>{column.value}</DropdownItem>
-              ))}
-            </>
+            {visibleColumns.map((column) => (
+              <DropdownItem key={column.id}>{column.value}</DropdownItem>
+            ))}
           </DropdownMenu>
         </Dropdown>
       </>
     );
   };
+
+  const saveFiltersToSessionStorage = (filters: {
+    campus: string[];
+    periodo: string[];
+  }) => {
+    const filtersData = { selectedFilters: filters };
+    sessionStorage.setItem("selectedFilters", JSON.stringify(filtersData));
+  };
+
+  useEffect(() => {
+    const { campus, periodo } = getFiltersFromSessionStorage();
+    if (campus.length > 0) setSelectedCampus(campus);
+    if (periodo.length > 0) setSelectedPeriod(periodo);
+  }, []);
+
+  function ocultarDisciplinasComConflito(
+    disciplinas: Discipline[]
+  ): Discipline[] {
+    const selecionadas = disciplinas.filter((d) =>
+      disciplinasSelecionadas.includes(d.id)
+    );
+
+    if (selecionadas.length === 0) {
+      return disciplinas;
+    }
+
+    return disciplinas.filter(
+      (disciplina) => !verificarConflitoMultiplo(disciplina, selecionadas)
+    );
+  }
 
   return (
     <>
@@ -358,20 +464,38 @@ export default function GridMaterias() {
         <div className="overflow-x-auto">
           <div className="pesquisar-texto mb-8">
             <div className="flex justify-between items-center">
-              <Input
+              <Autocomplete
                 variant="bordered"
-                placeholder="Digite"
+                defaultItems={removeDuplicatasPorChave(
+                  filteredDisciplines || [],
+                  "nome"
+                )}
+                placeholder="Digite o nome da disciplina"
                 className="bg-foreground-200 rounded-medium border-default-200 focus:border-[#00007c]"
-                startContent={
-                  <>
-                    <IoSearchOutline size={20} />
-                  </>
-                }
+                startContent={<IoSearchOutline size={20} />}
                 value={searchInput}
-                isClearable
-                onClear={() => setSearchInput("")}
-                onChange={(e) => setSearchInput(e.target.value)}
-              />
+                onClear={() => {
+                  setSearchInput("");
+                }}
+                onInputChange={(value) => setSearchInput(value)}
+                onSelectionChange={() => {
+                  setIsAutocompleteOpen(false);
+                }}
+                classNames={{
+                  base: "max-w-full",
+                  listbox: "max-h-[300px]",
+                  popoverContent: "w-full",
+                }}
+              >
+                {(disciplina) => (
+                  <AutocompleteItem
+                    key={disciplina.id}
+                    textValue={disciplina.nome}
+                  >
+                    {disciplina.nome}
+                  </AutocompleteItem>
+                )}
+              </Autocomplete>
 
               <Popover placement="bottom-end">
                 <PopoverTrigger>
@@ -393,6 +517,17 @@ export default function GridMaterias() {
                   </div>
                 </PopoverContent>
               </Popover>
+            </div>
+
+            <div className="flex items-center mt-4 ml-2">
+              <Checkbox
+                size="sm"
+                className="text-sm"
+                isSelected={ocultarConflitos}
+                onChange={() => setOcultarConflitos(!ocultarConflitos)}
+              >
+                Ocultar turmas em conflito
+              </Checkbox>
             </div>
           </div>
 
