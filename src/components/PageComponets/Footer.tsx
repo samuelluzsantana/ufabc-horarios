@@ -33,7 +33,7 @@ export default function Footer() {
         </a>
 
         <a
-          href="mailto:your@email.com"
+          href="mailto:slsamuelluz@gmail.com"
           className="hover:scale-110 transition-transform duration-300"
         >
           <Send2
@@ -45,6 +45,21 @@ export default function Footer() {
       </div>
     );
   };
+
+  const pages = [
+    {
+      title: "início",
+      href: "/lista-disciplinas",
+    },
+    {
+      title: "sobre",
+      href: "/sobre",
+    },
+    {
+      title: "????",
+      href: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    },
+  ];
 
   return (
     <>
@@ -65,6 +80,19 @@ export default function Footer() {
                 @sxwuell
               </a>
             </p>
+
+            <div className="flex gap-4 mt-2">
+              {pages.map((page) => (
+                <a
+                  key={page.href}
+                  href={page.href}
+                  target="_blank"
+                  className="hover:underline text-default-600"
+                >
+                  {page.title}
+                </a>
+              ))}
+            </div>
 
             <span
               onClick={() => {

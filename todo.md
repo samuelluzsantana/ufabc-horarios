@@ -2,7 +2,7 @@
 
 1. [x] Corrigir esquema de URL
 2. [x] Salvar predefinições de filtragem no cookie
-3. [ ] Design para mostrar disciplinas selecionadas
+3. [x] Design para mostrar disciplinas selecionadas
 4. [x] Conflict filtering option for discipline selection - IAAAAAAAAA revisa isso aqui slk
 5. [ ] Filtragem por cursos (obrigatoriedade)
 6. [ ] Exibição do total de créditos disponíveis
