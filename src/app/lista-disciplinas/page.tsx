@@ -6,11 +6,10 @@ import Button from "@/components/Commons/Button";
 import Footer from "@/components/PageComponets/Footer";
 import Header from "@/components/PageComponets/Header";
 import ModalListaDisicplinas from "@/components/ModalListaDisciplinas";
+import Calendar from "@/components/Calendar";
+import Disciplinas from "@/components/Disciplinas/Index";
 // assets
 import { SearchNormal as ISearch } from "iconsax-react";
-import { useRouter } from "next/router";
-import Calendar from "@/components/Calendar";
-// import { PiMagnifyingGlass } from "react-icons/pi";
 
 export default function ListaDiciplinas() {
   const [isHover, setIsHover] = useState(false);
@@ -37,8 +36,11 @@ export default function ListaDiciplinas() {
           </Button>
         </Header>
 
-        <div className="w-full flex flex-col items-center">
-          <Calendar />
+        <div className="w-full flex-grow flex flex-col items-center">
+          <div className="w-full max-w-6xl px-4">
+            <Calendar />
+            <Disciplinas />
+          </div>
         </div>
         <Footer />
       </main>

@@ -2,18 +2,19 @@
 
 1. [x] Corrigir esquema de URL
 2. [x] Salvar predefinições de filtragem no cookie
-3. [ ] Design para mostrar disciplinas selecionadas
-4. [ ] Filtragem por cursos (obrigatoriedade)
-5. [ ] Exibição do total de créditos disponíveis
-6. [ ] Página "Sobre"
-7. [ ] Página de Change-log
-8. [ ] Exibir disciplinas do curso
-9. [ ] Suporte a temas
-10. [ ] Exibição para mobile
-11. [ ] Baixar disciplinas em PNG
-12. [ ] Baixar formato calendário
-13. [ ] Separar função de filtragem
-14. [ ] Google Analytics
+3. [x] Design para mostrar disciplinas selecionadas
+4. [x] Conflict filtering option for discipline selection - IAAAAAAAAA revisa isso aqui slk
+5. [ ] Filtragem por cursos (obrigatoriedade)
+6. [ ] Exibição do total de créditos disponíveis
+7. [ ] Página "Sobre"
+8. [ ] Página de Change-log
+9. [ ] Exibir disciplinas do curso
+10. [ ] Suporte a temas
+11. [ ] Exibição para mobile
+12. [ ] Baixar disciplinas em PNG
+13. [ ] Baixar formato calendário
+14. [ ] Separar função de filtragem
+15. [ ] Google Analytics
 
 ### **Tarefas para Desenvolvimento**
 
@@ -148,3 +149,5 @@ O objetivo das tarefas é melhorar a experiência do usuário, aumentar a funcio
 - Integrar Google Analytics para monitoramento de uso.
 
 Esse planejamento garante uma abordagem clara e orientada a resultados, com foco em priorizar entregas de maior impacto para o usuário.
+
+- tab para proximas materias tipó isso https://dribbble.com/shots/23693492-Edtech-App-Concept em "upcomming testes"
