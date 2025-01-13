@@ -48,7 +48,7 @@ export default function Footer() {
 
   return (
     <>
-      <footer className="w-full  fixed bottom-2 px-2 text-default-400 text-[10px]">
+      <footer className="w-full px-2 text-default-400 text-[10px]">
         <div className="flex flex-col items-center justify-center w-full">
           <div className="about-this-project">
             <AboutProjectFooter />

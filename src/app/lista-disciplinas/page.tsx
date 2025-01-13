@@ -36,7 +36,7 @@ export default function ListaDiciplinas() {
           </Button>
         </Header>
 
-        <div className="w-full flex flex-col items-center">
+        <div className="w-full flex-grow flex flex-col items-center">
           <div className="w-full max-w-6xl px-4">
             <Calendar />
             <Disciplinas />
