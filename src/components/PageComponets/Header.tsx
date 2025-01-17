@@ -1,5 +1,5 @@
 import { ReactNode, useState } from "react";
-import { Divider } from "@nextui-org/react";
+import { Divider } from "@heroui/react";
 // commons
 import Logo from "../Commons/Logo";
 

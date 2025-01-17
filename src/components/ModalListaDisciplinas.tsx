@@ -7,7 +7,7 @@ import {
   ModalFooter,
   Button,
   useDisclosure,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import GridMaterias from "./GridMaterias";
 
 interface ModalListaDisicplinasrprops {

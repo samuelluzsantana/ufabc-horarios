@@ -19,7 +19,7 @@ import {
   Selection,
   Autocomplete,
   AutocompleteItem,
-} from "@nextui-org/react";
+} from "@heroui/react";
 
 import { IoFilterOutline, IoSearchOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
@@ -65,7 +65,7 @@ export default function GridMaterias() {
     defaultPeriod.length > 0 ? defaultPeriod : ["Diurno", "Noturno"]
   );
 
-  const isSmallScreen = window.innerWidth < 450;
+  const isSmallScreen = window?.innerWidth < 450;
 
   const visibleColumns = [
     { id: "sigla", value: "Sigla" },
@@ -230,6 +230,7 @@ export default function GridMaterias() {
           (discipline) =>
             selectedCampus.includes(discipline.nome_campus) &&
             selectedPeriod.includes(discipline.periodo) &&
+            discipline.horarios &&
             !verificarConflitoMultiplo(
               discipline,
               disciplines.filter((d) => disciplinasSelecionadas.includes(d.id))
@@ -241,6 +242,7 @@ export default function GridMaterias() {
         disciplines?.filter(
           (discipline) =>
             selectedCampus.includes(discipline.nome_campus) &&
+            discipline.horarios &&
             selectedPeriod.includes(discipline.periodo)
         ) || [],
         searchInput

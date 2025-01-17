@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { getDisciplinasSelecionadas } from "@/services/materiasSelecionadas";
-import { Button, Chip, Divider } from "@nextui-org/react";
+import { Button, Chip, Divider } from "@heroui/react";
 import { IoCloseCircle } from "react-icons/io5";
 
 export default function Disciplinas() {
   const [disciplinasArray, setDisciplinasArray] = useState<number[]>([]);
+  const [isSmallScreen, setIsSmallScreen] = useState<boolean>(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const disciplinas = params.get("disciplinas");
     setDisciplinasArray(disciplinas ? disciplinas.split(",").map(Number) : []);
+
+    // Verifica o tamanho da tela apenas no lado do cliente
+    setIsSmallScreen(window.innerWidth < 450);
   }, []);
 
   const disciplinas = getDisciplinasSelecionadas();
@@ -40,12 +44,23 @@ export default function Disciplinas() {
       : "";
 
     window.location.href = window.location.pathname + newUrl;
-
-    console.log(newUrl);
   }
 
+  const getCampusName = (nomeCampus: string): string => {
+    if (isSmallScreen) {
+      return nomeCampus === "São Bernardo do Campo"
+        ? "SBC"
+        : nomeCampus === "Santo André"
+          ? "SA"
+          : nomeCampus;
+    }
+    return nomeCampus;
+  };
+
+  console.log(disciplinas);
+
   return (
-    <div className="container-materias-selecionadas w-full ml-4">
+    <div className="container-materias-selecionadas w-full">
       <div className="flex flex-col w-full my-[8em]">
         <div className="materias-selecionadas grid grid-cols-1 gap-2 w-full">
           {disciplinas.map((disciplina, index) => (
@@ -61,14 +76,29 @@ export default function Disciplinas() {
                       backgroundColor: getColorByIndex(index),
                     }}
                   ></div>
-                  <div className="text-lg">{disciplina.turma} - </div>
-                  <div className="text-lg">{disciplina.nome}</div>
+                  {!isSmallScreen && (
+                    <div className="text-lg">{disciplina.turma} - </div>
+                  )}
+                  <div className={isSmallScreen ? "text-sm" : "text-lg"}>
+                    {disciplina.nome}
+                  </div>
                 </div>
 
                 <div className="flex items-center  gap-2">
-                  <Chip variant="flat" size="sm">
+                  <Chip
+                    variant="flat"
+                    size="sm"
+                    style={{
+                      backgroundColor:
+                        disciplina.periodo.toLowerCase() === "diurno"
+                          ? "#939393"
+                          : "#373737",
+                      color: "#FFF",
+                    }}
+                  >
                     {disciplina.periodo}
                   </Chip>
+
                   <Chip
                     variant="flat"
                     size="sm"
@@ -81,7 +111,7 @@ export default function Disciplinas() {
                           : corSA,
                     }}
                   >
-                    {disciplina.nome_campus}
+                    {getCampusName(disciplina.nome_campus)}
                   </Chip>
 
                   <Button isIconOnly size="sm" className="bg-transparent">

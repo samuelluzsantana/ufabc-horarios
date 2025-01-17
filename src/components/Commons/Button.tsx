@@ -1,6 +1,6 @@
 import React from "react";
-import { Button as NextUIButton } from "@nextui-org/button";
-import { ButtonProps } from "@nextui-org/react";
+import { Button as NextUIButton } from "@heroui/button";
+import { ButtonProps } from "@heroui/react";
 
 const Button: React.FC<ButtonProps> = ({ children, ...rest }) => {
   return (
