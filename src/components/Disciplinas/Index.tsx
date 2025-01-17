@@ -42,7 +42,7 @@ export default function Disciplinas() {
     window.location.href = window.location.pathname + newUrl;
   }
 
-  const isSmallScreen = window.innerWidth < 450;
+  const isSmallScreen = window?.innerWidth < 450;
   const getCampusName = (nomeCampus: string): string => {
     if (isSmallScreen) {
       return nomeCampus === "São Bernardo do Campo"

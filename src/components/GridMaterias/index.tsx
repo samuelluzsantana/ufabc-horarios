@@ -65,7 +65,7 @@ export default function GridMaterias() {
     defaultPeriod.length > 0 ? defaultPeriod : ["Diurno", "Noturno"]
   );
 
-  const isSmallScreen = window.innerWidth < 450;
+  const isSmallScreen = window?.innerWidth < 450;
 
   const visibleColumns = [
     { id: "sigla", value: "Sigla" },
