@@ -4,9 +4,9 @@ import { useTheme } from "next-themes";
 // assests - icons
 import { Send2 } from "iconsax-react";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
+import { version } from "@/app/config";
 
 export default function Footer() {
-  const version = "0.0.1";
   const { theme, setTheme } = useTheme();
 
   const iconSize = 18;
@@ -54,10 +54,17 @@ export default function Footer() {
     {
       title: "sobre",
       href: "/sobre",
+      target: "_self",
+    },
+    {
+      title: "versão",
+      href: "/change-log",
+      target: "_self",
     },
     {
       title: "????",
       href: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      target: "_blank",
     },
   ];
 
@@ -81,12 +88,12 @@ export default function Footer() {
               </a>
             </p>
 
-            <div className="flex gap-4 mt-2">
+            <div className="flex gap-4">
               {pages.map((page) => (
                 <a
                   key={page.href}
                   href={page.href}
-                  target="_blank"
+                  target={page.target}
                   className="hover:underline text-default-600"
                 >
                   {page.title}

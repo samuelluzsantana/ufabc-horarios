@@ -2,10 +2,12 @@
 
 import Footer from "@/components/PageComponets/Footer";
 import Header from "@/components/PageComponets/Header";
-import { Button } from "@nextui-org/react";
+
 import { useState } from "react";
 import { ArrowLeft as ISearch } from "iconsax-react";
 import { useRouter } from "next/navigation";
+import { beta } from "../config";
+import { Alert, Button } from "@heroui/react";
 
 // react
 
@@ -44,8 +46,18 @@ export default function Sobre() {
             <p className="text-base leading-6">
               O <strong>UFABC-Horários</strong> é uma ferramenta criada para
               facilitar a organização dos estudantes da Universidade Federal do
-              ABC (UFABC) em relação aos horários das disciplinas e à gestão do
-              tempo acadêmico.
+              ABC
+              <span className="mx-2">
+                <a
+                  href="https://www.ufabc.edu.br/"
+                  target="_blank"
+                  className="text-blue-600 hover:underline"
+                >
+                  (UFABC)
+                </a>
+              </span>
+              em relação aos horários das disciplinas e à gestão do tempo
+              acadêmico.
             </p>
 
             <h3 className="text-xl font-semibold mt-6">
@@ -113,6 +125,29 @@ export default function Sobre() {
               outras responsabilidades, maximizando sua produtividade e
               organização.
             </p>
+
+            {beta && (
+              <div className="flex w-full justify-center my-8">
+                <div className="flex items-center justify-center w-full">
+                  <Alert
+                    hideIconWrapper
+                    description={
+                      <span>
+                        Saiba mais em{" "}
+                        <a
+                          href="/change-log"
+                          className="text-blue-600 hover:underline"
+                        >
+                          /change-log
+                        </a>
+                      </span>
+                    }
+                    title={`Atualmente o UFABC-HORARIOS está em beta  ʕ•ᴥ•ʔ `}
+                    variant="bordered"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
         <Footer />
