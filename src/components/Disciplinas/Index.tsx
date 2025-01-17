@@ -5,11 +5,15 @@ import { IoCloseCircle } from "react-icons/io5";
 
 export default function Disciplinas() {
   const [disciplinasArray, setDisciplinasArray] = useState<number[]>([]);
+  const [isSmallScreen, setIsSmallScreen] = useState<boolean>(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const disciplinas = params.get("disciplinas");
     setDisciplinasArray(disciplinas ? disciplinas.split(",").map(Number) : []);
+
+    // Verifica o tamanho da tela apenas no lado do cliente
+    setIsSmallScreen(window.innerWidth < 450);
   }, []);
 
   const disciplinas = getDisciplinasSelecionadas();
@@ -42,7 +46,6 @@ export default function Disciplinas() {
     window.location.href = window.location.pathname + newUrl;
   }
 
-  const isSmallScreen = window?.innerWidth < 450;
   const getCampusName = (nomeCampus: string): string => {
     if (isSmallScreen) {
       return nomeCampus === "São Bernardo do Campo"
