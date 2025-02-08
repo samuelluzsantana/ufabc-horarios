@@ -28,6 +28,13 @@ import {
   removeDuplicatas,
   removeDuplicatasPorChave,
 } from "@/services/removeDuplicates";
+import {
+  setDisciplinas,
+  setDisciplinasSelecionadas,
+  toggleDisciplinaSelecionada,
+  useDisciplinasSelecionadas,
+  useDisciplinaStore,
+} from "@/store/store";
 
 export default function GridMaterias() {
   const router = useRouter();
@@ -94,8 +101,6 @@ export default function GridMaterias() {
     return isSmallScreen ? defaultColumnsMobile : defaultColumnsWeb;
   });
 
-  const [selectedRows, setSelectedRows] = useState<number[]>([]);
-
   const selectedKeys = new Set(selectedColumns);
 
   const handleSelectionChange = (keys: Selection) => {
@@ -115,15 +120,6 @@ export default function GridMaterias() {
     const updatedColumns = selectedArray.map((key) => String(key));
     setSelectedColumns(updatedColumns);
     sessionStorage.setItem("selectedColumns", JSON.stringify(updatedColumns));
-  };
-
-  const handleRowSelectionChange = (selectedRows: Set<number>) => {
-    const selectedIndexes = Array.from(selectedRows);
-    setSelectedRows(selectedIndexes);
-
-    const urlFragment = selectedIndexes.join(",");
-    sessionStorage.setItem("selectedDisciplines", JSON.stringify(urlFragment));
-    atualizarUrlComDisciplinas(selectedIndexes); // Atualiza a URL com as disciplinas selecionadas
   };
 
   const handleCampusSelectionChange = (keys: Set<React.Key>) => {
@@ -148,6 +144,7 @@ export default function GridMaterias() {
       const response = await listaTodasDisciplinasAPI();
       setDisciplines(response);
       localStorage.setItem("disciplines", JSON.stringify(response));
+      setDisciplinas(response);
     } catch (error) {
       console.log(error);
     } finally {
@@ -176,6 +173,8 @@ export default function GridMaterias() {
       listaTodasDisciplinas();
     }
 
+    setDisciplinas(disciplines);
+
     setDisciplines(JSON.parse(disciplinesFromLocalStorage));
   }, []);
 
@@ -200,9 +199,14 @@ export default function GridMaterias() {
     });
   };
 
-  const [disciplinasSelecionadas, setDisciplinasSelecionadas] = useState<
-    number[]
-  >([]);
+  // Acessa as disciplinas selecionadas do store
+  const disciplinasSelecionadas = useDisciplinasSelecionadas();
+
+  // Função para salvar disciplinas e atualizar a URL
+  const salvarDisciplinas = (disciplina: Discipline) => {
+    toggleDisciplinaSelecionada(disciplina); // Adiciona/remove a disciplina no store
+    atualizarUrlComDisciplinas(disciplinasSelecionadas); // Atualiza a URL
+  };
 
   const [ocultarConflitos, setOcultarConflitos] = useState(false);
 
@@ -233,7 +237,9 @@ export default function GridMaterias() {
             discipline.horarios &&
             !verificarConflitoMultiplo(
               discipline,
-              disciplines.filter((d) => disciplinasSelecionadas.includes(d.id))
+              disciplines.filter(
+                (d) => disciplinasSelecionadas.some((sel) => sel.id === d.id) // Corrigido aqui
+              )
             )
         ) || [],
         searchInput
@@ -248,80 +254,49 @@ export default function GridMaterias() {
         searchInput
       );
 
-  function atualizarUrlComDisciplinas(disciplinas: number[]) {
+  // Função para atualizar a URL com as disciplinas selecionadas
+  const atualizarUrlComDisciplinas = (disciplinas: Discipline[]) => {
     const params = new URLSearchParams(window.location.search);
-
     if (disciplinas.length > 0) {
-      params.set("disciplinas", disciplinas.join(","));
+      params.set("disciplinas", disciplinas.map((d) => d.id).join(","));
     } else {
       params.delete("disciplinas");
     }
-
     const newUrl = `${window.location.pathname}?${params.toString()}`;
     router.push(decodeURIComponent(newUrl));
-  }
+  };
 
-  // Função para salvar disciplinas e atualizar a URL
-  function salvarDisciplinas(disciplina: number) {
-    setDisciplinasSelecionadas((prevState) => {
-      // Verifica se a disciplina está presente em filteredDisciplines
-      const disciplinaPresente = filteredDisciplines.some(
-        (d) => d.id === disciplina
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const disciplinasParam = url.searchParams.get("disciplinas");
+
+    if (disciplinasParam) {
+      // Substitui ponto e vírgula por vírgula, se necessário
+      const disciplinas = disciplinasParam
+        .replace(/;/g, ",")
+        .split(",")
+        .map((id) => parseInt(id, 10));
+      const selectedDisciplinas = disciplines.filter((d) =>
+        disciplinas.includes(d.id)
       );
-
-      let updatedState: number[];
-      if (prevState.includes(disciplina)) {
-        // Se a disciplina já está na lista, remova-a apenas se ainda estiver em filteredDisciplines
-        if (disciplinaPresente) {
-          updatedState = prevState.filter((id) => id !== disciplina);
-        } else {
-          updatedState = prevState;
-        }
-      } else {
-        // Se a disciplina não está na lista, adicione-a apenas se estiver em filteredDisciplines
-        if (disciplinaPresente) {
-          updatedState = [...prevState, disciplina];
-        } else {
-          updatedState = prevState;
-        }
-      }
-
-      // Atualiza a URL com o parâmetro de consulta 'disciplinas'
-      atualizarUrlComDisciplinas(updatedState);
-
-      return updatedState;
-    });
-  }
-
-  // useEffect para configurar disciplinasSelecionadas a partir da URL
-  useEffect(() => {
-    const url = new URL(window.location.href);
-    const disciplinasParam = url.searchParams.get("disciplinas");
-
-    if (disciplinasParam) {
-      // Substitui ponto e vírgula por vírgula, se necessário
-      const disciplinas = disciplinasParam
-        .replace(/;/g, ",")
-        .split(",")
-        .map((id) => parseInt(id, 10));
-      setDisciplinasSelecionadas(disciplinas);
+      setDisciplinasSelecionadas(selectedDisciplinas);
     }
   }, []);
 
   useEffect(() => {
     const url = new URL(window.location.href);
     const disciplinasParam = url.searchParams.get("disciplinas");
-
     if (disciplinasParam) {
-      // Substitui ponto e vírgula por vírgula, se necessário
-      const disciplinas = disciplinasParam
+      const ids = disciplinasParam
         .replace(/;/g, ",")
         .split(",")
         .map((id) => parseInt(id, 10));
-      setDisciplinasSelecionadas(disciplinas);
-      atualizarUrlComDisciplinas(disciplinas); // Atualiza a URL com as disciplinas selecionadas
+      const disciplinasSelecionadas = disciplines.filter((d) =>
+        ids.includes(d.id)
+      );
+      useDisciplinaStore.setState({ disciplinasSelecionadas });
     }
-  }, []);
+  }, [disciplines]);
 
   const FiltrarPeriodo = () => {
     return (
@@ -436,22 +411,6 @@ export default function GridMaterias() {
     if (periodo.length > 0) setSelectedPeriod(periodo);
   }, []);
 
-  function ocultarDisciplinasComConflito(
-    disciplinas: Discipline[]
-  ): Discipline[] {
-    const selecionadas = disciplinas.filter((d) =>
-      disciplinasSelecionadas.includes(d.id)
-    );
-
-    if (selecionadas.length === 0) {
-      return disciplinas;
-    }
-
-    return disciplinas.filter(
-      (disciplina) => !verificarConflitoMultiplo(disciplina, selecionadas)
-    );
-  }
-
   return (
     <>
       {isLoading ? (
@@ -556,7 +515,7 @@ export default function GridMaterias() {
                   <tr
                     key={index}
                     className={`h-[5.5em] bg-opacity-50 transition-all ${
-                      disciplinasSelecionadas.includes(course.id)
+                      disciplinasSelecionadas.some((d) => d.id === course.id)
                         ? "bg-default-300"
                         : index % 2 === 0
                           ? "bg-foreground-50"
@@ -565,9 +524,11 @@ export default function GridMaterias() {
                   >
                     <td className="h-full w-[2em]">
                       <Checkbox
-                        isSelected={disciplinasSelecionadas.includes(course.id)}
+                        isSelected={disciplinasSelecionadas.some(
+                          (d) => d.id === course.id
+                        )}
                         className="ml-2"
-                        onChange={() => salvarDisciplinas(course.id)}
+                        onChange={() => salvarDisciplinas(course)}
                       />
                     </td>
                     {visibleColumns.map(
@@ -575,7 +536,7 @@ export default function GridMaterias() {
                         !verifySelecteds(column.id) && (
                           <td
                             key={column.id}
-                            onClick={() => salvarDisciplinas(course.id)}
+                            onClick={() => salvarDisciplinas(course)}
                           >
                             {(course as any)[column.id]}
                           </td>

@@ -10,6 +10,7 @@ import styles from "./calendars.module.css";
 import dayjs from "dayjs";
 
 import { getDisciplinasSelecionadas } from "@/services/materiasSelecionadas";
+import { useDisciplinasSelecionadas } from "@/store/store";
 
 interface CalendarEvent {
   title: string;
@@ -116,15 +117,15 @@ const generateCalendarEvents = (
   });
 };
 export default function Calendar() {
-  const disciplinasSelectionadas: Discipline[] = getDisciplinasSelecionadas();
+  const disciplinasSelecionadas = useDisciplinasSelecionadas();
 
   const eventosA: CalendarEvent[] = generateCalendarEvents(
-    disciplinasSelectionadas,
+    disciplinasSelecionadas,
     false
   );
 
   const eventosB: CalendarEvent[] = generateCalendarEvents(
-    disciplinasSelectionadas,
+    disciplinasSelecionadas,
     true
   );
 

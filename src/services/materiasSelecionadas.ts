@@ -1,7 +1,9 @@
-export function getDisciplinasSelecionadas(): Discipline[] {
+export function getDisciplinasSelecionadas(
+  listaDisciplinas: Discipline[]
+): Discipline[] {
   if (typeof window !== "undefined") {
     // Recupera as disciplinas do localStorage
-    const disciplinesFromLocalStorage = JSON.parse(
+    const listaDisciplinas = JSON.parse(
       localStorage.getItem("disciplines") || "[]"
     ) as Discipline[];
 
@@ -13,10 +15,29 @@ export function getDisciplinasSelecionadas(): Discipline[] {
         ?.split(/[, %2C]+/)
         .map((id) => parseInt(id, 10)) || [];
 
-    // Filtra as disciplinas do localStorage que correspondem aos IDs da URL
-    const disciplinasSelecionadas = disciplinesFromLocalStorage.filter(
-      (disciplina) => selectedDisciplinesIds.includes(disciplina.id)
-    );
+    // Ordena as disciplinas e os IDs para usar a técnica de dois ponteiros
+    listaDisciplinas.sort((a, b) => a.id - b.id);
+    selectedDisciplinesIds.sort((a, b) => a - b);
+
+    const disciplinasSelecionadas: Discipline[] = [];
+    let i = 0; // Ponteiro para a lista de disciplinas
+    let j = 0; // Ponteiro para a lista de IDs selecionados
+
+    // Aplica a técnica de dois ponteiros para encontrar as disciplinas correspondentes
+    while (i < listaDisciplinas.length && j < selectedDisciplinesIds.length) {
+      const disciplina = listaDisciplinas[i];
+      const idSelecionado = selectedDisciplinesIds[j];
+
+      if (disciplina.id === idSelecionado) {
+        disciplinasSelecionadas.push(disciplina);
+        i++;
+        j++;
+      } else if (disciplina.id < idSelecionado) {
+        i++;
+      } else {
+        j++;
+      }
+    }
 
     return disciplinasSelecionadas;
   }

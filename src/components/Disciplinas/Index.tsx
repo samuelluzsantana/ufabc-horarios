@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { getDisciplinasSelecionadas } from "@/services/materiasSelecionadas";
 import { Button, Chip, Divider } from "@heroui/react";
 import { IoCloseCircle } from "react-icons/io5";
+import {
+  useDisciplinas,
+  useDisciplinasSelecionadas,
+  toggleDisciplinaSelecionada,
+} from "@/store/store";
 
 export default function Disciplinas() {
-  const [disciplinasArray, setDisciplinasArray] = useState<number[]>([]);
   const [isSmallScreen, setIsSmallScreen] = useState<boolean>(false);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const disciplinas = params.get("disciplinas");
-    setDisciplinasArray(disciplinas ? disciplinas.split(",").map(Number) : []);
-
     // Verifica o tamanho da tela apenas no lado do cliente
     setIsSmallScreen(window.innerWidth < 450);
   }, []);
 
-  const disciplinas = getDisciplinasSelecionadas();
+  const listaDisciplinas: Discipline[] = useDisciplinas();
+  const disciplinasSelecionadas = useDisciplinasSelecionadas();
 
   const colors = [
     "#780000",
@@ -34,16 +34,21 @@ export default function Disciplinas() {
   const corSA = "#1a9c5c";
   const corSBC = "#500100";
 
-  function removerDisciplina(disciplinaId: number) {
-    const novasDisciplinas = disciplinasArray.filter(
-      (id) => id !== disciplinaId
-    );
+  function removerDisciplina(disciplina: Discipline) {
+    // Remove a disciplina do estado global
+    toggleDisciplinaSelecionada(disciplina);
+
+    // Atualiza a URL com as disciplinas selecionadas restantes
+    const novasDisciplinas = disciplinasSelecionadas
+      .filter((d) => d.id !== disciplina.id) // Filtra a disciplina removida
+      .map((d) => d.id); // Extrai os IDs das disciplinas restantes
 
     const newUrl = novasDisciplinas.length
-      ? `?disciplinas=${novasDisciplinas.join(",")}`
-      : "";
+      ? `?disciplinas=${novasDisciplinas.join(",")}` // Cria a nova URL
+      : ""; // Se não houver disciplinas, remove o parâmetro da URL
 
-    window.location.href = window.location.pathname + newUrl;
+    // Atualiza a URL sem recarregar a página
+    window.history.pushState({}, "", window.location.pathname + newUrl);
   }
 
   const getCampusName = (nomeCampus: string): string => {
@@ -57,13 +62,11 @@ export default function Disciplinas() {
     return nomeCampus;
   };
 
-  console.log(disciplinas);
-
   return (
     <div className="container-materias-selecionadas w-full">
       <div className="flex flex-col w-full my-[8em]">
         <div className="materias-selecionadas grid grid-cols-1 gap-2 w-full">
-          {disciplinas.map((disciplina, index) => (
+          {disciplinasSelecionadas.map((disciplina, index) => (
             <div key={disciplina.id}>
               <div className="flex justify-between">
                 <div className="flex justify-center">
@@ -84,7 +87,7 @@ export default function Disciplinas() {
                   </div>
                 </div>
 
-                <div className="flex items-center  gap-2">
+                <div className="flex items-center gap-2">
                   <Chip
                     variant="flat"
                     size="sm"
@@ -104,7 +107,6 @@ export default function Disciplinas() {
                     size="sm"
                     style={{
                       color: "#fff",
-
                       backgroundColor:
                         disciplina.nome_campus === "São Bernardo do Campo"
                           ? corSBC
@@ -116,7 +118,7 @@ export default function Disciplinas() {
 
                   <Button isIconOnly size="sm" className="bg-transparent">
                     <IoCloseCircle
-                      onClick={(e) => removerDisciplina(disciplina.id)}
+                      onClick={() => removerDisciplina(disciplina)}
                       className="text-opacity-35"
                       size={18}
                     />
