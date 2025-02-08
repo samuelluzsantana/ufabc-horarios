@@ -10,7 +10,6 @@ import { beta } from "../config";
 import { Alert, Button } from "@heroui/react";
 
 // react
-
 export default function Sobre() {
   const router = useRouter();
   // eslint-disable-next-line react-hooks/rules-of-hooks

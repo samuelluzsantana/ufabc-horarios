@@ -21,6 +21,7 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <link rel="icon" href="/branco-logo.svg" sizes="any" />
       </head>
+
       <body className={spaceGrotesk.className}>
         <Providers>{children}</Providers>
       </body>

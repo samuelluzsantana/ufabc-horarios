@@ -1,3 +1,6 @@
+- garantir que as displinas selecionadas na URL estejam renderizadas no calendario
+- usando npm install zustand
+
 ### **Checklist para o PM**
 
 1. [x] Corrigir esquema de URL
