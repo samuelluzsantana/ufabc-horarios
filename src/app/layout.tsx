@@ -1,6 +1,8 @@
 import { Space_Grotesk } from "next/font/google";
 import type { Metadata } from "next";
 import { Providers } from "@/contexts/provider";
+import { Analytics } from "@vercel/analytics/next";
+
 // estilo global
 import "../styles/globals.css";
 
@@ -24,6 +26,7 @@ export default function RootLayout({
 
       <body className={spaceGrotesk.className}>
         <Providers>{children}</Providers>
+        <Analytics />
       </body>
     </html>
   );
