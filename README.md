@@ -31,7 +31,8 @@ UFABC Horários é uma aplicação web desenvolvida para auxiliar estudantes da 
 ## Demonstração
 
 <div align="justify">
-![UFABC Horários Demo](https://i.imgur.com/oFquLA3.gif)  
+
+  <img src="https://i.imgur.com/oFquLA3.gif" alt="UFABC Horários Demo">  
 </div>
 
 ## Recursos Principais
