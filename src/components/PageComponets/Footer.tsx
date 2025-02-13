@@ -24,7 +24,7 @@ export default function Footer() {
         </a>
 
         <a
-          href="https://linkedin.com/in/samuelluzsantana"
+          href="https://www.linkedin.com/posts/samuelluzsantana_ufabc-projetopessoal-activity-7295079176628244483-RFCC?utm_source=share&utm_medium=member_desktop"
           target="_blank"
           rel="noopener noreferrer"
           className="hover:scale-110 transition-transform duration-300"

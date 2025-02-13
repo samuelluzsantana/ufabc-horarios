@@ -1,38 +1,48 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# UFABC Horários
 
-## Getting Started
+## Sobre
 
-First, run the development server:
+UFABC Horários é uma aplicação web desenvolvida para auxiliar estudantes da **Universidade Federal do ABC (UFABC)** no planejamento de suas grades horárias de forma simples e eficiente. A ferramenta permite visualizar e organizar disciplinas de maneira interativa, facilitando o processo de matrícula.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Funcionalidades
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- 📅 **Visualização interativa** do calendário de aulas
+- 🔍 **Pesquisa e filtro** de disciplinas
+- 💾 **Armazenamento local** para salvar disciplinas selecionadas
+- 🔗 **Geração de URLs compartilháveis** com as matérias escolhidas
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- 📱 **Design responsivo** para dispositivos móveis e desktop
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Tecnologias Utilizadas
 
-## Learn More
+- **Next.js**
+- **TypeScript**
+- **Zustand** para gerenciamento de estado
+- **Tailwind CSS**
+- **React Calendar**
 
-To learn more about Next.js, take a look at the following resources:
+## Como Funciona
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. O sistema obtém a lista de disciplinas a partir do site de matrícula da UFABC.
+2. O usuário pode **selecionar** as disciplinas desejadas.
+3. A grade horária é **gerada automaticamente** e exibida em um calendário semanal.
+4. As disciplinas podem ser **compartilhadas via URL** ou **salvas localmente**.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Demonstração
 
-## Deploy on Vercel
+<div align="justify">
+![UFABC Horários Demo](https://i.imgur.com/oFquLA3.gif)  
+</div>
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Recursos Principais
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- **Visualização em tempo real** da grade horária
+- **Detecção de conflitos** entre disciplinas
+- **Filtro por campus** (Santo André/São Bernardo)
+- **Filtro por período** (Manhã/Tarde/Noite)
+- **Pesquisa por código e nome da disciplina**
+- **Calendário responsivo** para facilitar a navegação
 
-# ufabc-horarios
+## Contribuindo
+
+Contribuições são bem-vindas! Sinta-se à vontade para abrir _issues_ e enviar _pull requests_.
