@@ -38,7 +38,7 @@ export default function Footer() {
           href="mailto:slsamuelluz@gmail.com"
           className="hover:scale-110 transition-transform duration-300"
         >
-          <MdEmail size={iconSize + 2} className="hover:text-green-600" />
+          <MdEmail size={iconSize} className="hover:text-green-600" />
         </a>
       </div>
     );

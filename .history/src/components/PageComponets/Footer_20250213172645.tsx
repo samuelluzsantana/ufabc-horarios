@@ -2,10 +2,8 @@
 import React from "react";
 import { useTheme } from "next-themes";
 // assests - icons
-
+import { Send2 } from "iconsax-react";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
-import { MdEmail } from "react-icons/md";
-
 import { version } from "@/app/config";
 
 export default function Footer() {
@@ -38,7 +36,11 @@ export default function Footer() {
           href="mailto:slsamuelluz@gmail.com"
           className="hover:scale-110 transition-transform duration-300"
         >
-          <MdEmail size={iconSize + 2} className="hover:text-green-600" />
+          <Send2
+            variant="Bold"
+            size={iconSize}
+            className="hover:text-green-600"
+          />
         </a>
       </div>
     );

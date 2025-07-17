@@ -42,7 +42,7 @@ export default function ListaDiciplinas() {
         <Header isLogoHover={isHover || openModal}>
           <Button
             className={`search-dicipline-button text-white bg-[#18181b] dark:bg-[#27272a] hover:bg-[#00007c] dark:hover:bg-[#00007c]`}
-            startContent={<RiSearch2Fill size={15} />}
+            startContent={<RiSearch2Line size={15} />}
             radius="sm"
             aria-label="Select Disciplines"
             onMouseEnter={() => {
