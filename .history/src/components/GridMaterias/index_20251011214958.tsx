@@ -443,14 +443,14 @@ export default function GridMaterias() {
                     isClearable
                   />
                   {searchInput && filteredDisciplines.length > 0 && (
-                    <div className="absolute z-50 w-full mt-1 bg-white dark:bg-[#27272a] border border-gray-200 dark:border-[#3f3f46] rounded-lg shadow-lg max-h-[200px] overflow-y-auto">
+                    <div className="absolute z-50 w-full mt-1 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-600 rounded-lg shadow-lg max-h-[200px] overflow-y-auto">
                       {removeDuplicatasPorChave(
                         filteredDisciplines.slice(0, 10), // Limit to 10 suggestions
                         "nome"
                       ).map((disciplina) => (
                         <div
                           key={disciplina.id}
-                          className="px-3 py-2 hover:bg-gray-100 dark:hover:bg-[#3f3f46] cursor-pointer text-sm text-gray-900 dark:text-gray-100 border-b border-gray-100 dark:border-[#18181b] last:border-b-0 transition-colors"
+                          className="px-3 py-2 hover:bg-gray-100 dark:hover:bg-zinc-700 cursor-pointer text-sm text-gray-900 dark:text-gray-100 border-b border-gray-100 dark:border-zinc-700 last:border-b-0 transition-colors"
                           onClick={() => {
                             setSearchInput(disciplina.nome);
                           }}

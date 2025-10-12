@@ -209,15 +209,7 @@ export default function GridMaterias() {
   // Função para salvar disciplinas e atualizar a URL
   const salvarDisciplinas = (disciplina: Discipline) => {
     toggleDisciplinaSelecionada(disciplina); // Adiciona/remove a disciplina no store
-
-    // Atualiza a URL com o novo estado
-    const novasDisciplinas = disciplinasSelecionadas.some(
-      (d) => d.id === disciplina.id
-    )
-      ? disciplinasSelecionadas.filter((d) => d.id !== disciplina.id)
-      : [...disciplinasSelecionadas, disciplina];
-
-    atualizarUrlComDisciplinas(novasDisciplinas);
+    atualizarUrlComDisciplinas(disciplinasSelecionadas); // Atualiza a URL
   };
 
   const [ocultarConflitos, setOcultarConflitos] = useState(false);
@@ -268,36 +260,45 @@ export default function GridMaterias() {
 
   // Função para atualizar a URL com as disciplinas selecionadas
   const atualizarUrlComDisciplinas = (disciplinas: Discipline[]) => {
-    let newUrl = window.location.pathname;
+    const params = new URLSearchParams(window.location.search);
     if (disciplinas.length > 0) {
-      const disciplinasIds = disciplinas.map((d) => d.id).join(",");
-      newUrl += `?disciplinas=${disciplinasIds}`;
+      params.set("disciplinas", disciplinas.map((d) => d.id).join(","));
+    } else {
+      params.delete("disciplinas");
     }
-    window.history.replaceState({}, "", newUrl);
-  };
-
-  // Função para carregar disciplinas da URL apenas uma vez
-  const carregarDisciplinasDaUrl = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const disciplinasParam = urlParams.get("disciplinas");
-
-    if (disciplinasParam && disciplines.length > 0) {
-      const ids = disciplinasParam
-        .split(",")
-        .map((id) => parseInt(id.trim(), 10))
-        .filter((id) => !isNaN(id));
-
-      const selectedDisciplinas = disciplines.filter((d) => ids.includes(d.id));
-
-      if (selectedDisciplinas.length > 0) {
-        setDisciplinasSelecionadas(selectedDisciplinas);
-      }
-    }
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    router.push(decodeURIComponent(newUrl));
   };
 
   useEffect(() => {
-    if (disciplines.length > 0) {
-      carregarDisciplinasDaUrl();
+    const url = new URL(window.location.href);
+    const disciplinasParam = url.searchParams.get("disciplinas");
+
+    if (disciplinasParam) {
+      // Substitui ponto e vírgula por vírgula, se necessário
+      const disciplinas = disciplinasParam
+        .replace(/;/g, ",")
+        .split(",")
+        .map((id) => parseInt(id, 10));
+      const selectedDisciplinas = disciplines.filter((d) =>
+        disciplinas.includes(d.id)
+      );
+      setDisciplinasSelecionadas(selectedDisciplinas);
+    }
+  }, []);
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const disciplinasParam = url.searchParams.get("disciplinas");
+    if (disciplinasParam) {
+      const ids = disciplinasParam
+        .replace(/;/g, ",")
+        .split(",")
+        .map((id) => parseInt(id, 10));
+      const disciplinasSelecionadas = disciplines.filter((d) =>
+        ids.includes(d.id)
+      );
+      useDisciplinaStore.setState({ disciplinasSelecionadas });
     }
   }, [disciplines]);
 
@@ -428,40 +429,38 @@ export default function GridMaterias() {
         <div className="overflow-x-auto">
           <div className="pesquisar-texto mb-8">
             <div className="flex justify-between items-center">
-              <div className="flex-1 mr-4">
-                <div className="relative">
-                  <Input
-                    variant="bordered"
-                    placeholder="Digite o nome da disciplina"
-                    className="bg-foreground-200 rounded-medium border-default-200 focus:border-[#00007c]"
-                    startContent={<IoSearchOutline size={20} />}
-                    value={searchInput}
-                    onValueChange={(value) => setSearchInput(value)}
-                    onClear={() => {
-                      setSearchInput("");
-                    }}
-                    isClearable
-                  />
-                  {searchInput && filteredDisciplines.length > 0 && (
-                    <div className="absolute z-50 w-full mt-1 bg-white dark:bg-[#27272a] border border-gray-200 dark:border-[#3f3f46] rounded-lg shadow-lg max-h-[200px] overflow-y-auto">
-                      {removeDuplicatasPorChave(
-                        filteredDisciplines.slice(0, 10), // Limit to 10 suggestions
-                        "nome"
-                      ).map((disciplina) => (
-                        <div
-                          key={disciplina.id}
-                          className="px-3 py-2 hover:bg-gray-100 dark:hover:bg-[#3f3f46] cursor-pointer text-sm text-gray-900 dark:text-gray-100 border-b border-gray-100 dark:border-[#18181b] last:border-b-0 transition-colors"
-                          onClick={() => {
-                            setSearchInput(disciplina.nome);
-                          }}
-                        >
-                          {disciplina.nome}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
+              <Autocomplete
+                variant="bordered"
+                defaultItems={removeDuplicatasPorChave(
+                  filteredDisciplines || [],
+                  "nome"
+                )}
+                placeholder="Digite o nome da disciplina"
+                className="bg-foreground-200 rounded-medium border-default-200 focus:border-[#00007c]"
+                startContent={<IoSearchOutline size={20} />}
+                value={searchInput}
+                onClear={() => {
+                  setSearchInput("");
+                }}
+                onInputChange={(value) => setSearchInput(value)}
+                onSelectionChange={() => {
+                  setIsAutocompleteOpen(false);
+                }}
+                classNames={{
+                  base: "max-w-full",
+                  listbox: "max-h-[300px]",
+                  popoverContent: "w-full",
+                }}
+              >
+                {(disciplina) => (
+                  <AutocompleteItem
+                    key={disciplina.id}
+                    textValue={disciplina.nome}
+                  >
+                    {disciplina.nome}
+                  </AutocompleteItem>
+                )}
+              </Autocomplete>
 
               <Popover placement="bottom-end">
                 <PopoverTrigger>
@@ -469,7 +468,7 @@ export default function GridMaterias() {
                     size="sm"
                     variant="solid"
                     aria-label="Selecione os Filtros"
-                    className="w-[5.5em] h-[4.5em] md:w-[4.5em] rounded-medium bg-[#00007c] text-white"
+                    className="ml-4 w-[5.5em] h-[4.5em] md:w-[4.5em] rounded-medium bg-[#00007c] text-white"
                     isIconOnly
                   >
                     <IoFilterOutline size={18.5} />
