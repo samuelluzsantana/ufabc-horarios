@@ -15,30 +15,19 @@ import {
   PopoverContent,
   PopoverTrigger,
   Progress,
-  ScrollShadow,
   Selection,
-  Autocomplete,
-  AutocompleteItem,
 } from "@heroui/react";
 
 import { IoFilterOutline, IoSearchOutline } from "react-icons/io5";
-import { useRouter } from "next/navigation";
-import router from "next/router";
-import {
-  removeDuplicatas,
-  removeDuplicatasPorChave,
-} from "@/services/removeDuplicates";
+import { removeDuplicatasPorChave } from "@/services/removeDuplicates";
 import {
   setDisciplinas,
   setDisciplinasSelecionadas,
   toggleDisciplinaSelecionada,
   useDisciplinasSelecionadas,
-  useDisciplinaStore,
 } from "@/store/store";
-import { log } from "node:console";
 
 export default function GridMaterias() {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const disciplinesFromLocalStorage = localStorage.getItem("disciplines")!;
   const [disciplines, setDisciplines] = useState<Discipline[]>(
@@ -183,7 +172,6 @@ export default function GridMaterias() {
   }, []);
 
   const [searchInput, setSearchInput] = useState("");
-  const [isAutocompleteOpen, setIsAutocompleteOpen] = useState(false);
 
   const searchFilteredDisciplines = (
     disciplines: Discipline[],
