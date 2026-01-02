@@ -515,13 +515,16 @@ export default function GridMaterias() {
                           : "bg-foreground-100"
                     } hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer`}
                   >
-                    <td className="h-full w-[2em]">
+                    <td
+                      className="h-full w-[2em]"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <Checkbox
                         isSelected={disciplinasSelecionadas.some(
                           (d) => d.id === course.id
                         )}
-                        className="ml-2"
-                        onChange={() => salvarDisciplinas(course)}
+                        className="ml-2 touch-manipulation"
+                        onValueChange={() => salvarDisciplinas(course)}
                       />
                     </td>
                     {visibleColumns.map(
