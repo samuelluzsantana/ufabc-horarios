@@ -24,7 +24,7 @@
     "iconsax-react": "^0.0.8",
     "lodash": "^4.17.21",
     "lucide-react": "^0.343.0",
-    "next": "^15.3.3",
+    "next": "15.3.8",
     "next-themes": "^0.2.1",
     "react": "^18",
     "react-dom": "^18",
