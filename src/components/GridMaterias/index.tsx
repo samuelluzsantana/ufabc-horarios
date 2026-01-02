@@ -29,15 +29,23 @@ import {
 
 export default function GridMaterias() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const disciplinesFromLocalStorage = localStorage.getItem("disciplines")!;
-  const [disciplines, setDisciplines] = useState<Discipline[]>(
-    JSON.parse(disciplinesFromLocalStorage)
-  );
+  const [disciplines, setDisciplines] = useState<Discipline[]>([]);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    const disciplinesFromLocalStorage = localStorage.getItem("disciplines");
+    if (disciplinesFromLocalStorage) {
+      setDisciplines(JSON.parse(disciplinesFromLocalStorage));
+    }
+  }, []);
 
   const getFiltersFromSessionStorage = (): {
     campus: string[];
     periodo: string[];
   } => {
+    if (typeof window === "undefined") return { campus: [], periodo: [] };
+
     const savedFilters = sessionStorage.getItem("selectedFilters");
     if (!savedFilters) return { campus: [], periodo: [] };
 
@@ -62,7 +70,11 @@ export default function GridMaterias() {
     defaultPeriod.length > 0 ? defaultPeriod : ["Diurno", "Noturno"]
   );
 
-  const isSmallScreen = window?.innerWidth < 450;
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+  useEffect(() => {
+    setIsSmallScreen(window.innerWidth < 450);
+  }, []);
 
   const visibleColumns = [
     { id: "sigla", value: "Sigla" },
@@ -162,13 +174,14 @@ export default function GridMaterias() {
   }, [isSmallScreen, visibleColumns]);
 
   useEffect(() => {
-    if (!disciplinesFromLocalStorage) {
+    const storedDisciplines = localStorage.getItem("disciplines");
+    if (!storedDisciplines) {
       listaTodasDisciplinas();
+    } else {
+      const parsed = JSON.parse(storedDisciplines);
+      setDisciplinas(parsed);
+      setDisciplines(parsed);
     }
-
-    setDisciplinas(disciplines);
-
-    setDisciplines(JSON.parse(disciplinesFromLocalStorage));
   }, []);
 
   const [searchInput, setSearchInput] = useState("");
