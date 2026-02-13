@@ -27,16 +27,67 @@ import {
   useDisciplinasSelecionadas,
 } from "@/store/store";
 
+const CACHE_EXPIRATION_HOURS = 24; // Cache expira em 24 horas
+
+interface CachedDisciplines {
+  data: Discipline[];
+  timestamp: number;
+}
+
+function isCacheValid(timestamp: number): boolean {
+  const now = Date.now();
+  const expirationTime = CACHE_EXPIRATION_HOURS * 60 * 60 * 1000;
+  return now - timestamp < expirationTime;
+}
+
 export default function GridMaterias() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const [disciplines, setDisciplines] = useState<Discipline[]>([]);
   const [isClient, setIsClient] = useState(false);
 
+  const getCachedDisciplines = (): Discipline[] | null => {
+    try {
+      const cached = localStorage.getItem("disciplines");
+      if (!cached) return null;
+
+      const parsedCache: CachedDisciplines = JSON.parse(cached);
+
+      // Verifica se o cache tem timestamp (formato novo)
+      if (parsedCache.timestamp && parsedCache.data) {
+        if (isCacheValid(parsedCache.timestamp)) {
+          return parsedCache.data;
+        }
+        // Cache expirado
+        return null;
+      }
+
+      // Formato antigo (sem timestamp) - considera válido mas migra para novo formato
+      if (Array.isArray(parsedCache)) {
+        return parsedCache;
+      }
+
+      return null;
+    } catch {
+      console.error("Erro ao ler cache de disciplinas");
+      return null;
+    }
+  };
+
+  const saveDisciplinesToCache = (data: Discipline[]) => {
+    const cacheData: CachedDisciplines = {
+      data,
+      timestamp: Date.now(),
+    };
+    localStorage.setItem("disciplines", JSON.stringify(cacheData));
+  };
+
   useEffect(() => {
     setIsClient(true);
-    const disciplinesFromLocalStorage = localStorage.getItem("disciplines");
-    if (disciplinesFromLocalStorage) {
-      setDisciplines(JSON.parse(disciplinesFromLocalStorage));
+    const cachedDisciplines = getCachedDisciplines();
+    if (cachedDisciplines) {
+      setDisciplines(cachedDisciplines);
+      setDisciplinas(cachedDisciplines);
     }
   }, []);
 
@@ -58,17 +109,14 @@ export default function GridMaterias() {
     }
   };
 
-  const { campus: defaultCampus, periodo: defaultPeriod } =
-    getFiltersFromSessionStorage();
-
-  const [selectedCampus, setSelectedCampus] = useState<string[]>(
-    defaultCampus.length > 0
-      ? defaultCampus
-      : ["Santo André", "São Bernardo do Campo"]
-  );
-  const [selectedPeriod, setSelectedPeriod] = useState<string[]>(
-    defaultPeriod.length > 0 ? defaultPeriod : ["Diurno", "Noturno"]
-  );
+  const [selectedCampus, setSelectedCampus] = useState<string[]>([
+    "Santo André",
+    "São Bernardo do Campo",
+  ]);
+  const [selectedPeriod, setSelectedPeriod] = useState<string[]>([
+    "Diurno",
+    "Noturno",
+  ]);
 
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
@@ -95,13 +143,20 @@ export default function GridMaterias() {
     "nome_campus",
   ];
 
-  const [selectedColumns, setSelectedColumns] = useState<string[]>(() => {
+  const [selectedColumns, setSelectedColumns] =
+    useState<string[]>(defaultColumnsWeb);
+
+  // Load saved columns from sessionStorage after mount
+  useEffect(() => {
     const savedColumns = sessionStorage.getItem("selectedColumns");
     if (savedColumns) {
-      return JSON.parse(savedColumns);
+      setSelectedColumns(JSON.parse(savedColumns));
+    } else {
+      setSelectedColumns(
+        isSmallScreen ? defaultColumnsMobile : defaultColumnsWeb,
+      );
     }
-    return isSmallScreen ? defaultColumnsMobile : defaultColumnsWeb;
-  });
+  }, [isSmallScreen]);
 
   const selectedKeys = new Set(selectedColumns);
 
@@ -140,18 +195,34 @@ export default function GridMaterias() {
     return !selectedKeys.has(valor);
   }
 
-  async function listaTodasDisciplinas() {
+  async function listaTodasDisciplinas(retryCount = 0) {
+    const MAX_RETRIES = 3;
     setIsLoading(true);
+    setError(null);
+
     try {
       const response = await listaTodasDisciplinasAPI();
+
+      if (!response || response.length === 0) {
+        throw new Error("Nenhuma disciplina encontrada");
+      }
+
       setDisciplines(response);
-      localStorage.setItem("disciplines", JSON.stringify(response));
-
-      console.log(response);
-
+      saveDisciplinesToCache(response);
       setDisciplinas(response);
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.error("Erro ao carregar disciplinas:", err);
+
+      if (retryCount < MAX_RETRIES) {
+        console.log(`Tentando novamente... (${retryCount + 1}/${MAX_RETRIES})`);
+        setTimeout(
+          () => listaTodasDisciplinas(retryCount + 1),
+          1000 * (retryCount + 1),
+        );
+        return;
+      }
+
+      setError("Erro ao carregar disciplinas. Tente novamente mais tarde.");
     } finally {
       setIsLoading(false);
     }
@@ -165,7 +236,7 @@ export default function GridMaterias() {
       setSelectedColumns(newSelectedColumns);
       sessionStorage.setItem(
         "selectedColumns",
-        JSON.stringify(newSelectedColumns)
+        JSON.stringify(newSelectedColumns),
       );
     };
 
@@ -174,13 +245,12 @@ export default function GridMaterias() {
   }, [isSmallScreen, visibleColumns]);
 
   useEffect(() => {
-    const storedDisciplines = localStorage.getItem("disciplines");
-    if (!storedDisciplines) {
+    const cachedDisciplines = getCachedDisciplines();
+    if (!cachedDisciplines) {
       listaTodasDisciplinas();
     } else {
-      const parsed = JSON.parse(storedDisciplines);
-      setDisciplinas(parsed);
-      setDisciplines(parsed);
+      setDisciplinas(cachedDisciplines);
+      setDisciplines(cachedDisciplines);
     }
   }, []);
 
@@ -188,7 +258,7 @@ export default function GridMaterias() {
 
   const searchFilteredDisciplines = (
     disciplines: Discipline[],
-    searchTerm: string
+    searchTerm: string,
   ) => {
     if (!searchTerm.trim()) return disciplines;
 
@@ -213,7 +283,7 @@ export default function GridMaterias() {
 
     // Atualiza a URL com o novo estado
     const novasDisciplinas = disciplinasSelecionadas.some(
-      (d) => d.id === disciplina.id
+      (d) => d.id === disciplina.id,
     )
       ? disciplinasSelecionadas.filter((d) => d.id !== disciplina.id)
       : [...disciplinasSelecionadas, disciplina];
@@ -225,7 +295,7 @@ export default function GridMaterias() {
 
   function verificarConflitoMultiplo(
     disciplina: Discipline,
-    selecionadas: Discipline[]
+    selecionadas: Discipline[],
   ): boolean {
     return selecionadas.some((selecionada) => {
       return selecionada.horarios.some((horarioSelecionado) => {
@@ -233,7 +303,7 @@ export default function GridMaterias() {
           return (
             horario.semana === horarioSelecionado.semana &&
             horario.horas.some((hora) =>
-              horarioSelecionado.horas.includes(hora)
+              horarioSelecionado.horas.includes(hora),
             )
           );
         });
@@ -251,20 +321,20 @@ export default function GridMaterias() {
             !verificarConflitoMultiplo(
               discipline,
               disciplines.filter(
-                (d) => disciplinasSelecionadas.some((sel) => sel.id === d.id) // Corrigido aqui
-              )
-            )
+                (d) => disciplinasSelecionadas.some((sel) => sel.id === d.id), // Corrigido aqui
+              ),
+            ),
         ) || [],
-        searchInput
+        searchInput,
       )
     : searchFilteredDisciplines(
         disciplines?.filter(
           (discipline) =>
             selectedCampus.includes(discipline.nome_campus) &&
             discipline.horarios &&
-            selectedPeriod.includes(discipline.periodo)
+            selectedPeriod.includes(discipline.periodo),
         ) || [],
-        searchInput
+        searchInput,
       );
 
   // Função para atualizar a URL com as disciplinas selecionadas
@@ -425,6 +495,18 @@ export default function GridMaterias() {
             indicator: "bg-[#00007c]",
           }}
         />
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center p-8 gap-4">
+          <p className="text-red-500 dark:text-red-400 text-center">{error}</p>
+          <Button
+            size="sm"
+            variant="solid"
+            className="bg-[#00007c] dark:bg-[#3333cc] text-white"
+            onClick={() => listaTodasDisciplinas()}
+          >
+            Tentar novamente
+          </Button>
+        </div>
       ) : (
         <div className="overflow-x-auto">
           <div className="pesquisar-texto mb-8">
@@ -447,7 +529,7 @@ export default function GridMaterias() {
                     <div className="absolute z-50 w-full mt-1 bg-white dark:bg-[#27272a] border border-gray-200 dark:border-[#3f3f46] rounded-lg shadow-lg max-h-[200px] overflow-y-auto">
                       {removeDuplicatasPorChave(
                         filteredDisciplines.slice(0, 10), // Limit to 10 suggestions
-                        "nome"
+                        "nome",
                       ).map((disciplina) => (
                         <div
                           key={disciplina.id}
@@ -512,7 +594,7 @@ export default function GridMaterias() {
                         >
                           {column.value}
                         </th>
-                      )
+                      ),
                   )}
                 </tr>
               </thead>
@@ -534,7 +616,7 @@ export default function GridMaterias() {
                     >
                       <Checkbox
                         isSelected={disciplinasSelecionadas.some(
-                          (d) => d.id === course.id
+                          (d) => d.id === course.id,
                         )}
                         className="ml-2 touch-manipulation"
                         onValueChange={() => salvarDisciplinas(course)}
@@ -549,7 +631,7 @@ export default function GridMaterias() {
                           >
                             {(course as any)[column.id]}
                           </td>
-                        )
+                        ),
                     )}
                   </tr>
                 ))}
