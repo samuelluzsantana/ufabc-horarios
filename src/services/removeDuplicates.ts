@@ -1,20 +1,20 @@
 /**
- * Remove elementos duplicados de um array baseado em uma propriedade específica
- * @param lista Array de objetos
- * @param chave Nome da propriedade para comparação
+ * Remove elementos duplicados de um array baseado em múltiplas propriedades
+ * @param array Array de objetos
+ * @param chaves Nome das propriedades para comparação
  * @returns Novo array sem elementos duplicados
  */
-export function removeDuplicatasPorChave<T extends object>(
-  lista: T[],
-  chave: keyof T
-): T[] {
-  const seen = new Set();
-  return lista.filter((item) => {
-    const valor = item[chave];
-    if (seen.has(valor)) {
+export const removeDuplicatasPorChave = (
+  array: any[],
+  chaves: string[]
+): any[] => {
+  const vistos = new Set();
+  return array.filter((item) => {
+    const chave = chaves.map((key) => item[key]).join("|");
+    if (vistos.has(chave)) {
       return false;
     }
-    seen.add(valor);
+    vistos.add(chave);
     return true;
   });
-}
+};

@@ -11,6 +11,5 @@ export const DISCIPLINE_COLORS = [
   "#00007c",
 ];
 
-export const getColorByIndex = (index: number): string => {
-  return DISCIPLINE_COLORS[index % DISCIPLINE_COLORS.length];
-};
+export const getColorByIndex = (index: number) =>
+  DISCIPLINE_COLORS[index % DISCIPLINE_COLORS.length];
