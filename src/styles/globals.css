@@ -78,20 +78,3 @@
 .search-dicipline-button:hover .star-logo {
   color: red;
 }
-
-.fc-day-today {
-  background-color: inherit !important;
-}
-
-.fc {
-  width: 100%;
-  height: 100%;
-}
-
-.fc-event {
-  cursor: pointer;
-}
-
-.fc-timegrid-event {
-  min-height: 30px;
-}

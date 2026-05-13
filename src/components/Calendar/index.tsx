@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
-import styles from "./calendars.module.css";
 import dayjs from "dayjs";
 import { useDisciplinasSelecionadas } from "@/store/store";
+import { getColorByIndex } from "@/lib/colors";
 
 interface CalendarEvent {
   title: string;
@@ -120,18 +120,7 @@ const calculateEventDateTime = (dayIndex: number, time: string): string => {
     .toISOString();
 };
 
-const colors = [
-  "#780000",
-  "#c1121f",
-  "#ffb521",
-  "#003049",
-  "#669bbc",
-  "#00007c",
-];
 
-const getColorByIndex = (index: number): string => {
-  return colors[index % colors.length];
-};
 
 const generateCalendarEventsFromDisciplines = (
   disciplines: Discipline[],

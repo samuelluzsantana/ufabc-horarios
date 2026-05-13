@@ -35,7 +35,6 @@ const ChangelogSection: React.FC<ChangelogSectionProps> = ({
 
 export default function Changelog() {
   const router = useRouter();
-  const [isHover, setIsHover] = useState(false);
   const progresso = 67;
 
   const completedFeatures = [
@@ -60,13 +59,11 @@ export default function Changelog() {
 
   return (
     <main className="flex min-h-screen flex-col">
-      <Header isLogoHover={isHover}>
+      <Header>
         <Button
           className="text-white bg-[#18181b] dark:bg-[#27272a] hover:bg-[#00007c] dark:hover:bg-[#00007c]"
           radius="sm"
           aria-label="Go to Home"
-          onMouseEnter={() => setIsHover(true)}
-          onMouseLeave={() => setIsHover(false)}
           onClick={() => router.back()}
         >
           Voltar

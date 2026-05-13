@@ -3,35 +3,22 @@
 import Footer from "@/components/PageComponets/Footer";
 import Header from "@/components/PageComponets/Header";
 
-import { useState } from "react";
-import { ArrowLeft as ISearch } from "iconsax-react";
 import { useRouter } from "next/navigation";
 import { beta } from "../config";
 import { Alert, Button } from "@heroui/react";
 
-// react
 export default function Sobre() {
   const router = useRouter();
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [isHover, setIsHover] = useState(false);
 
   return (
     <>
       <main className="flex min-h-screen flex-col">
-        <Header isLogoHover={isHover}>
+        <Header>
           <Button
-            className={`search-dicipline-button text-white bg-[#18181b] dark:bg-[#27272a] hover:bg-[#00007c] dark:hover:bg-[#00007c]`}
+            className="search-dicipline-button text-white bg-[#18181b] dark:bg-[#27272a] hover:bg-[#00007c] dark:hover:bg-[#00007c]"
             radius="sm"
             aria-label="Select Disciplines"
-            onMouseEnter={() => {
-              setIsHover(true);
-            }}
-            onMouseLeave={() => {
-              setIsHover(false);
-            }}
-            onClick={() => {
-              router.replace("/lista-disciplinas");
-            }}
+            onClick={() => router.replace("/lista-disciplinas")}
           >
             inicio
           </Button>

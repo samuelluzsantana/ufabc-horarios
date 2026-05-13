@@ -262,15 +262,33 @@ export default function GridMaterias() {
   ) => {
     if (!searchTerm.trim()) return disciplines;
 
-    const searchTerms = searchTerm.toLowerCase().split(/\s+/);
+    // Remove espaços e acentos para a busca otimizada
+    const normalizedSearch = searchTerm
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/\s+/g, "");
 
     return disciplines.filter((discipline) => {
-      const disciplineString = JSON.stringify(discipline).toLowerCase();
+      // Monta a string de busca apenas com os campos úteis
+      const rawText = `${discipline.nome || ""} ${discipline.sigla || ""} ${discipline.codigo || ""} ${discipline.turma || ""}`;
+      const searchText = rawText
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
 
-      return searchTerms.every((term) => {
-        // Verifica se o termo de busca está contido em qualquer parte da string da disciplina
-        return disciplineString.includes(term);
-      });
+      // Algoritmo de Dois Ponteiros
+      let searchPtr = 0;
+      let textPtr = 0;
+
+      while (searchPtr < normalizedSearch.length && textPtr < searchText.length) {
+        if (normalizedSearch[searchPtr] === searchText[textPtr]) {
+          searchPtr++;
+        }
+        textPtr++;
+      }
+
+      return searchPtr === normalizedSearch.length;
     });
   };
 

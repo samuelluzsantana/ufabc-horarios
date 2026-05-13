@@ -1,35 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Button, Chip, Divider } from "@heroui/react";
 import { IoCloseCircle } from "react-icons/io5";
 import {
-  useDisciplinas,
   useDisciplinasSelecionadas,
   toggleDisciplinaSelecionada,
 } from "@/store/store";
+import { getColorByIndex } from "@/lib/colors";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 export default function Disciplinas() {
-  const [isSmallScreen, setIsSmallScreen] = useState<boolean>(false);
-
-  useEffect(() => {
-    // Verifica o tamanho da tela apenas no lado do cliente
-    setIsSmallScreen(window.innerWidth < 450);
-  }, []);
-
-  const listaDisciplinas: Discipline[] = useDisciplinas();
+  const isSmallScreen = useMediaQuery("(max-width: 449px)");
   const disciplinasSelecionadas = useDisciplinasSelecionadas();
-
-  const colors = [
-    "#780000",
-    "#c1121f",
-    "#ffb521",
-    "#003049",
-    "#669bbc",
-    "#00007c",
-  ];
-
-  const getColorByIndex = (index: number): string => {
-    return colors[index % colors.length];
-  };
 
   const corSA = "#1a9c5c";
   const corSBC = "#500100";
@@ -116,9 +97,13 @@ export default function Disciplinas() {
                     {getCampusName(disciplina.nome_campus)}
                   </Chip>
 
-                  <Button isIconOnly size="sm" className="bg-transparent">
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    className="bg-transparent min-w-[44px] min-h-[44px]"
+                    onClick={() => removerDisciplina(disciplina)}
+                  >
                     <IoCloseCircle
-                      onClick={() => removerDisciplina(disciplina)}
                       className="text-opacity-35"
                       size={18}
                     />

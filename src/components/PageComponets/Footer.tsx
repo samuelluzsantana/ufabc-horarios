@@ -99,13 +99,15 @@ export default function Footer() {
               ))}
             </div>
 
-            <span
+            <button
               onClick={() => {
                 setTheme(theme === "light" ? "dark" : "light");
               }}
+              className="cursor-pointer hover:text-default-600 transition-colors"
+              aria-label="Alternar tema"
             >
               versão {version}
-            </span>
+            </button>
           </div>
         </div>
       </footer>

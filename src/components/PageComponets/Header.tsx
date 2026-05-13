@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 import { Divider } from "@heroui/react";
 // commons
 import Logo from "../Commons/Logo";
@@ -10,7 +10,7 @@ interface HeaderProps {
 }
 
 export default function Header({ isLogoHover, children }: HeaderProps) {
-  const [isHover, setIsHover] = useState(false);
+
 
   return (
     <>
